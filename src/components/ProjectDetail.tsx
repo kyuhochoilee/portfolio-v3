@@ -1,4 +1,19 @@
 "use client";
+type NotionRecordMap = Record<string, unknown>;
+
+interface StaticContent {
+  type: "static";
+  html: string;
+}
+
+function isStaticContent(content: unknown): content is StaticContent {
+  return (
+    typeof content === "object" &&
+    content !== null &&
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    (content as StaticContent).type === "static"
+  );
+}
 
 import React from "react";
 import dynamic from "next/dynamic";
@@ -63,9 +78,8 @@ interface Props {
 
 export default function ProjectDetail({ project, onClose }: Props) {
   // Detect whether this pageContent is a raw Notion recordMap or static HTML
-  const isStaticHtml =
-    (project as any).pageContent &&
-    (project as any).pageContent.type === "static";
+  const { pageContent } = project;
+  const isStaticHtml = pageContent && isStaticContent(pageContent);
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -191,13 +205,13 @@ export default function ProjectDetail({ project, onClose }: Props) {
             {isStaticHtml ? (
               <div
                 dangerouslySetInnerHTML={{
-                  __html: (project as any).pageContent.html,
+                  __html: (pageContent as StaticContent).html,
                 }}
                 className="project-detail"
               />
-            ) : project.pageContent ? (
+            ) : pageContent ? (
               <NotionRenderer
-                recordMap={project.pageContent as any}
+                recordMap={pageContent as unknown as NotionRecordMap}
                 fullPage={false}
                 darkMode={false}
                 components={{ Code, Collection, Equation, Modal }}
