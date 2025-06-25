@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Client } from "@notionhq/client";
 import { NotionAPI } from "notion-client";
+import { ExtendedRecordMap } from "notion-types";
 import { staticProjects, staticProjectDetails } from "@/data/staticProjects";
 
 // ✨ NEW – simple switch
@@ -59,6 +60,8 @@ function extractFilesFromProperty(files: any[]): string[] {
     .filter((url) => url !== "");
 }
 
+type NotionRecordMap = ExtendedRecordMap;
+
 // Function 1: Get all published projects (for home page)
 export async function getProjects(): Promise<ProjectSummary[]> {
   if (USE_STATIC) {
@@ -93,7 +96,19 @@ export async function getProjects(): Promise<ProjectSummary[]> {
         featuredImage: extractFilesFromProperty(
           properties["Featured Image"]?.files
         )[0],
-        tags: properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+        headerImage:
+          extractFilesFromProperty(properties["Header Image"]?.files)[0] ?? "",
+        tags:
+          properties.Tags?.multi_select?.map(
+            (tag: { name: string }) => tag.name
+          ) || [],
+        link: extractTextFromRichText(properties.Link?.rich_text),
+        role: extractTextFromRichText(properties.Role?.rich_text),
+        tools:
+          properties.Tools?.multi_select?.map(
+            (t: { name: string }) => t.name
+          ) || [],
+        timeline: extractTextFromRichText(properties.Timeline?.rich_text),
         published: properties.Published?.checkbox || false,
       };
     });
@@ -152,9 +167,20 @@ export async function getProjectBySlug(
       featuredImage: extractFilesFromProperty(
         properties["Featured Image"]?.files
       )[0],
-      tags: properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+      headerImage:
+        extractFilesFromProperty(properties["Header Image"]?.files)[0] ?? "",
+      tags:
+        properties.Tags?.multi_select?.map(
+          (tag: { name: string }) => tag.name
+        ) || [],
+      link: extractTextFromRichText(properties.Link?.rich_text),
+      role: extractTextFromRichText(properties.Role?.rich_text),
+      tools:
+        properties.Tools?.multi_select?.map((t: { name: string }) => t.name) ||
+        [],
+      timeline: extractTextFromRichText(properties.Timeline?.rich_text),
       published: properties.Published?.checkbox || false,
-      pageContent: recordMap, // This contains all the rich content from your Notion page
+      pageContent: recordMap as NotionRecordMap,
     };
   } catch (error) {
     console.error("Error fetching project:", error);

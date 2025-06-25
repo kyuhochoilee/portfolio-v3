@@ -1,5 +1,4 @@
 "use client";
-type NotionRecordMap = Record<string, unknown>;
 
 interface StaticContent {
   type: "static";
@@ -16,6 +15,7 @@ function isStaticContent(content: unknown): content is StaticContent {
 }
 
 import React from "react";
+import { ExtendedRecordMap } from "notion-types";
 import dynamic from "next/dynamic";
 import { ProjectDetail as ProjectDetailType } from "@/lib/notion";
 import {
@@ -211,7 +211,7 @@ export default function ProjectDetail({ project, onClose }: Props) {
               />
             ) : pageContent ? (
               <NotionRenderer
-                recordMap={pageContent as unknown as NotionRecordMap}
+                recordMap={pageContent as ExtendedRecordMap}
                 fullPage={false}
                 darkMode={false}
                 components={{ Code, Collection, Equation, Modal }}

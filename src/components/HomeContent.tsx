@@ -6,7 +6,8 @@ import { ProjectSummary } from "@/lib/notion";
 import ProjectGrid from "./ProjectGrid";
 import NameCard from "@/components/NameCard";
 import ResumeCard from "./ResumeCard";
-import ProjectDetail from "@/components/ProjectDetail";
+import ProjectDetailComponent from "@/components/ProjectDetail";
+import type { ProjectDetail as ProjectDetailData } from "@/lib/notion";
 
 import { useEffect } from "react";
 import { staticProjectDetails } from "@/data/staticProjects";
@@ -19,7 +20,7 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
   const [selectedProject, setSelectedProject] = useState<ProjectSummary | null>(
     null
   );
-  const [detailProject, setDetailProject] = useState<ProjectDetail | null>(
+  const [detailProject, setDetailProject] = useState<ProjectDetailData | null>(
     null
   );
 
@@ -28,7 +29,7 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
       // Try to find expanded data in static map; otherwise just use the summary
       const detail =
         staticProjectDetails[selectedProject.slug] ??
-        (selectedProject as unknown as typeof ProjectDetail);
+        (selectedProject as unknown as ProjectDetailData);
       setDetailProject(detail);
     } else {
       setDetailProject(null);
@@ -80,11 +81,11 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
               </p>
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row h-full gap-4">
+            <div className="flex flex-col lg:flex-row h-full gap-4">
               {/* Grid Area */}
               <div
                 className={`${
-                  detailProject ? "hidden md:block md:w-2/7" : "w-full"
+                  detailProject ? "hidden md:block lg:w-2/7" : "w-full"
                 } h-full`}
               >
                 <ProjectGrid
@@ -96,7 +97,7 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
               {/* Detail Area */}
               {detailProject && (
                 <div className="w-full border-gray-200 overflow-y-auto">
-                  <ProjectDetail
+                  <ProjectDetailComponent
                     project={detailProject}
                     onClose={() => setSelectedProject(null)}
                   />
