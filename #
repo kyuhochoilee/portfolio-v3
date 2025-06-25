@@ -1,0 +1,11 @@
+/Users/kyuho/Documents/Websites/portfolio-2025/portfolio-v3/#/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx,mdx}", // usual app/pages/components
+    "./src/styles/projectDetail.module.css", // <-- add your CSS module
+  ],
+  theme: {
+    extend: {}, // custom colors, fonts, etc. later
+  },
+  plugins: [], // e.g. require("@tailwindcss/typography")
+};

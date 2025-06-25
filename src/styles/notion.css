@@ -1,0 +1,81 @@
+/* Custom styles for Notion content */
+.notion-content {
+  font-family: inherit;
+}
+
+.notion-content .notion-page {
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.notion-content .notion-text {
+  line-height: 1.7;
+  color: #374151;
+}
+
+.notion-content .notion-h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.notion-content .notion-h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #111827;
+}
+
+.notion-content .notion-h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: #111827;
+}
+
+.notion-content .notion-image {
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.notion-content .notion-code {
+  background-color: #f3f4f6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 0.875rem;
+}
+
+.notion-content .notion-callout {
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  padding: 1rem;
+}
+
+.notion-content .notion-quote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.notion-content .notion-list {
+  margin: 1rem 0;
+}
+
+.notion-content .notion-list-item {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+/* Hide notion page title since we show it in our custom header */
+.notion-content .notion-page-title {
+  display: none;
+}
