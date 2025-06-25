@@ -26,15 +26,15 @@ const NameCard = () => {
         <h1 className="text-2xl font-semibold text-gray-900">Kyuho Lee</h1>
 
         <p className="text-gray-700 text-base">
-          I'm a designer and artist that codes, with experience across product,
-          branding, and marketing. I strive to empower individuals and
+          I&rsquo;m a designer and artist that codes, with experience across
+          product, branding, and marketing. I strive to empower individuals and
           communities through crafting enjoyable, inclusive experiences.
         </p>
         <p className="text-gray-700 text-base">
-          As a recent grad of the University of Pennsylvania, I'm now currently
-          working on a few side projects. Open to chat about anything design,
-          product, growth, or startups! Feel free to reach out to me at
-          kyuho@upenn.edu :)
+          As a recent grad of the University of Pennsylvania, I&rsquo;m now
+          currently working on a few side projects. Open to chat about anything
+          design, product, growth, or startups! Feel free to reach out to me at
+          kyuho@upenn.edu.
         </p>
         <div className="h-px bg-gradient-to-r from-gray-300 to-transparent" />
         <div className="flex gap-4 mt-auto pt-4">
