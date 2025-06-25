@@ -10,7 +10,7 @@ import ProjectDetailComponent from "@/components/ProjectDetail";
 import type { ProjectDetail as ProjectDetailData } from "@/lib/notion";
 
 import { useEffect } from "react";
-import { staticProjectDetails } from "@/data/staticProjects";
+import { staticProjectDetails, staticProjects } from "@/data/staticProjects";
 
 interface HomeContentProps {
   resolvedProjects: ProjectSummary[];
@@ -35,6 +35,12 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
       setDetailProject(null);
     }
   }, [selectedProject]);
+
+  // Fallback to the hard‑coded static list if the Notion fetch returns empty
+  const projectsToShow =
+    resolvedProjects && resolvedProjects.length > 0
+      ? resolvedProjects
+      : staticProjects;
 
   return (
     <div className="font-base tracking-tight leading-relaxed font-medium">
@@ -72,7 +78,7 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
             detailProject ? "w-full p-2" : "w-full md:w-5/7 p-2 h-full"
           } order-1 md:order-2`}
         >
-          {resolvedProjects.length === 0 ? (
+          {projectsToShow.length === 0 ? (
             <div className="h-full overflow-hidden card-glass p-6">
               <p>No projects found.</p>
               <p>
@@ -89,7 +95,7 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
                 } h-full`}
               >
                 <ProjectGrid
-                  projects={resolvedProjects}
+                  projects={projectsToShow}
                   selectedProject={selectedProject}
                   setSelectedProject={setSelectedProject}
                 />
