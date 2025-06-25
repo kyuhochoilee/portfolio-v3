@@ -1,13 +1,7 @@
 import { useState } from "react";
-import {
-  Github,
-  Linkedin,
-  User,
-  ArrowUpRight,
-  PenTool,
-  Code,
-  Sparkles,
-} from "lucide-react";
+import { FaLinkedin, FaGithub } from "react-icons/fa";
+
+import { ArrowUpRight, PenTool, Code, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 const NameCard = () => {
@@ -25,56 +19,39 @@ const NameCard = () => {
         <div className="flex items-center gap-4">
           <img
             src="/pfp.jpeg"
-            alt="Kyuho Lee"
-            className="w-12 h-12 rounded-full object-cover"
+            alt="Hey, I'm Kyuho!"
+            className="w-24 h-24 rounded-full object-cover"
           />
-          <h1 className="text-2xl font-semibold text-gray-900">Kyuho Lee</h1>
         </div>
+        <h1 className="text-2xl font-semibold text-gray-900">Kyuho Lee</h1>
+
         <p className="text-gray-700 text-base">
-          I bring ideas to life through design, code, and product strategy —
-          crafting digital experiences that scale, resonate, and endure.
+          I'm a designer and artist that codes, with experience across product,
+          branding, and marketing. I strive to empower individuals and
+          communities through crafting enjoyable, inclusive experiences.
         </p>
-        <div className="flex flex-wrap gap-2 mt-2">
-          <span className="px-3 py-1 text-xs rounded-full bg-pink-100 text-pink-700 font-medium">
-            Mobile&nbsp;Design
-          </span>
-          <span className="px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700 font-medium">
-            Engineer
-          </span>
-          <span className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700 font-medium">
-            Design&nbsp;Systems
-          </span>
-        </div>
+        <p className="text-gray-700 text-base">
+          As a recent grad of the University of Pennsylvania, I'm now currently
+          working on a few side projects. Open to chat about anything design,
+          product, growth, or startups! Feel free to reach out to me at
+          kyuho@upenn.edu :)
+        </p>
         <div className="h-px bg-gradient-to-r from-gray-300 to-transparent" />
-        <div className="flex gap-5">
+        <div className="flex gap-4 mt-auto pt-4">
           <a
             href="https://github.com/kyuhochoilee"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Github className="w-6 h-6 hover:opacity-80 transition-opacity" />
+            <FaGithub className="w-5 h-5 text-gray-400 hover:text-gray-500 transition-opacity" />
           </a>
           <a
             href="https://linkedin.com/in/kyuholee0"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Linkedin className="w-6 h-6 hover:opacity-80 transition-opacity" />
+            <FaLinkedin className="w-5 h-5 text-gray-400 hover:text-gray-500 transition-opacity" />
           </a>
-          <a
-            href="https://read.cv/kyuho"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <User className="w-6 h-6 hover:opacity-80 transition-opacity" />
-          </a>
-        </div>
-        <div className="text-gray-600 text-sm">
-          <p>
-            Currently building at Speak (Series B language learning startup),
-            where I bridge design, engineering, and growth. Passionate about
-            branding, product storytelling, and communities.
-          </p>
         </div>
       </div>
     </motion.div>

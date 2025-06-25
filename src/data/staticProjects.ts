@@ -176,7 +176,7 @@ export const staticProjectDetails: Record<string, ProjectDetail> = {
 <p><img src="/images/keynotes/wes-prog.png" alt="Wes Prog"></p>
 <p><img src="/images/keynotes/wes-vaness.png" alt="Wes Vaness"></p>
 <h1 id="website">Website</h1>
-<p>I also made the website: <a href="https://pennkeynotes.com/">pennkeynotes.com</a>. It&#39;s pretty cool, go check it out! There you can see the full documentation of my work (any design stuff you see there is mine)...</p>
+<p>I also made the website: <a href="https://pennkeynotes.com/">pennkeynotes.com</a>. It&#39;s pretty cool, go check it out! There you can see the full documentation of my work (any design stuff you see there starting from 2022 is mine)...</p>
 <p><img src="/images/keynotes/web-1.png" alt="Web"></p>
 <p><img src="/images/keynotes/web-2.png" alt="Web"></p>
 <p><img src="/images/keynotes/web-3.png" alt="Web"></p>

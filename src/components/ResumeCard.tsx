@@ -180,11 +180,6 @@ const ResumeCard = () => {
         >
           <FaLinkedin className="w-5 h-5 text-gray-400 hover:text-gray-500 transition-opacity" />
         </a>
-        <a
-          href="https://read.cv/kyuho"
-          target="_blank"
-          rel="noopener noreferrer"
-        ></a>
       </div>
     </div>
   );
