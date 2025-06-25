@@ -47,7 +47,9 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
       <div
         className="fixed inset-0 -z-10 animate-[pulse_8s_ease-in-out_infinite]"
         style={{
-          background: `radial-gradient(95.29% 95.18% at 90.54% 4.84%, rgba(255, 255, 255, 0.20) 0%, rgba(255, 214, 230, 0.20) 36.97%, rgba(255, 208, 208, 0.20) 68.05%, rgba(255, 201, 239, 0.20) 95.11%), #F6F6F6`,
+          background: "white",
+          backgroundImage:
+            "radial-gradient(140% 140% at 85% 10%, rgba(255, 255, 245, 1) 0%, rgba(255, 228, 240, 1) 30%, rgba(255, 220, 220, 1) 60%, rgba(255, 230, 235, 1) 100%)",
         }}
       ></div>
 
