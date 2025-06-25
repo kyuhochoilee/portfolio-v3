@@ -79,7 +79,7 @@ body {
   color: blue;
 }
 
-.project-detail img {
+.project-detail Image {
   border-radius: 0.75rem;
   border: 1px solid var(--color-gray-200); /* width | style | color */
   margin-bottom: -0.5em;

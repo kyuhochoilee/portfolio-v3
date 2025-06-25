@@ -132,7 +132,7 @@ export const staticProjectDetails: Record<string, ProjectDetail> = {
     pageContent: {
       type: "static",
       html: `
-        <p><img src="/images/nothing/film.jpeg" alt="Image"></p>
+        <p><Image fill src="/images/nothing/film.jpeg" alt="Image" /></p>
 <h1 id="about-the-project">About the Project</h1>
 <p>This album represents the most complete expression of my artistic work so far. As part of my senior thesis at the University of Pennsylvania, I challenged myself to finish a full album—not just the songs, but the entire visual and design experience that surrounds it. The process was both demanding and rewarding, and pushed me to grow in ways I didn’t expect.</p>
 <p><img src="/images/nothing/cover.jpeg" alt="Image"></p>
