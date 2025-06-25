@@ -45,7 +45,7 @@ export default function HomeContent({ resolvedProjects }: HomeContentProps) {
   return (
     <div className="font-base tracking-tight leading-relaxed font-medium">
       <div
-        className="fixed inset-0 -z-10 animate-[pulse_8s_ease-in-out_infinite]"
+        className="fixed inset-0 -z-10"
         style={{
           background: "white",
           backgroundImage:
