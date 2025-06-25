@@ -267,8 +267,8 @@ As we closed in towards the end of development (or so we thought), we realized t
       html: `
  <h1 id="about">About</h1>
 <p>Below is an assortment of creative work of mine that was developed through my coursework, or simply as a passion project. Enjoy!</p>
-<p><img src="/images/creative/zine.png"        alt="Zine"        style="border:0;" /></p>
-<p><img src="/images/creative/posters.png"     alt="Posters"     style="border:0;" /></p>
+<p><img src="/images/creative/zine.jpeg"        alt="Zine"        style="border:0;" /></p>
+<p><img src="/images/creative/posters.jpeg"     alt="Posters"     style="border:0;" /></p>
 <p><img src="/images/creative/photo-self.jpg"  alt="Photo Self"  style="border:0;" /></p>
 <p><img src="/images/creative/photo-s.jpeg"    alt="Photo S"     style="border:0;" /></p>
 <p><img src="/images/creative/photo-a.jpeg"    alt="Photo A"     style="border:0;" /></p>
