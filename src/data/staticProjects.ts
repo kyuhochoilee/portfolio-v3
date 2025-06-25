@@ -159,7 +159,7 @@ export const staticProjectDetails: Record<string, ProjectDetail> = {
 <p><img src="/images/cover-keynotes.jpg" alt="Image"></p>
 <h1 id="work-samples">Work Samples</h1>
 <p>For each show, there needed to be a theme, a name, a photoshoot, graphic design guidelines, and a printed program. Below are some of my favorites from over the years — and feel free to visit the website I created, <a href="https://pennkeynotes.com/media">pennkeynotes.com/media</a>, for even more work samples!</p>
-<p><img src="/images/keynotes/after-poster.jpg" alt="After Poster"></p>
+<p><img src="/images/keynotes/after-poster.jpeg" alt="After Poster"></p>
 <p><img src="/images/keynotes/after-aliyah.png" alt="After Aliyah"></p>
 <p><img src="/images/keynotes/rec-poster.png" alt="Rec Poster"></p>
 <p><img src="/images/keynotes/rec-prog.png" alt="Rec Prog"></p>
