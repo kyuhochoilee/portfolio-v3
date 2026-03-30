@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   },
   description:
     "Designer, engineer, and creative — crafting experiences that scale, resonate, and endure.",
+  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
 };
 
 export default function RootLayout({
@@ -33,6 +34,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable}`} suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#0c0a09" />
+      </head>
       <body className="antialiased">
         <ScrollProvider>
           <AsciiHeader />

@@ -75,9 +75,9 @@
   --space-24: 6rem;
   --space-32: 8rem;
 
-  /* Safe zones — match header/footer blur heights */
-  --header-safe: 72px;
-  --footer-safe: 180px;
+  /* Safe zones — match header/footer blur heights + device safe areas */
+  --header-safe: calc(72px + env(safe-area-inset-top, 0px));
+  --footer-safe: calc(120px + env(safe-area-inset-bottom, 0px));
 
   /* --- Radii --- */
   --radius-sm: 6px;
@@ -217,6 +217,10 @@ body {
 /* Allow touch scrolling on the row */
 .creative-row {
   -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .snap-mandatory-desktop { scroll-snap-type: y mandatory !important; }
 }
 
 ::selection {

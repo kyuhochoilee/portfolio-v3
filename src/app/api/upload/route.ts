@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
     : { width: MAX_WIDTH, withoutEnlargement: true };
 
   const compressed = await sharp(rawBuffer)
+    .rotate()
     .resize(resizeOpts)
     .webp({ quality: QUALITY })
     .toBuffer();

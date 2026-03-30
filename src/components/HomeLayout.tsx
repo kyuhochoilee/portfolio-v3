@@ -162,9 +162,9 @@ export default function HomeLayout({
       <div
         ref={scrollRef}
         data-snap-container
-        className="h-screen overflow-y-auto"
+        className="h-screen overflow-y-auto snap-mandatory-desktop"
         style={{
-          scrollSnapType: "y mandatory",
+          scrollSnapType: "y proximity",
           scrollBehavior: "smooth",
         }}
       >

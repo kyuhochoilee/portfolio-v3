@@ -394,16 +394,22 @@ ${body}`;
                     <TextBlock
                       block={block}
                       onChange={(content) => updateBlock(block.id, { content })}
-                      onEnter={() => {
-                        const newBlock: Block = { id: newId(), type: "text", content: "" };
+                      onEnter={(before, after) => {
+                        const newBlock: Block = { id: newId(), type: "text", content: after };
                         setBlocks((prev) => {
                           const next = [...prev];
+                          next[idx] = { ...next[idx], content: before };
                           next.splice(idx + 1, 0, newBlock);
                           return next;
                         });
                         setTimeout(() => {
                           const els = document.querySelectorAll<HTMLTextAreaElement>("[data-block-text]");
-                          els[idx + 1]?.focus();
+                          const newEl = els[idx + 1];
+                          if (newEl) {
+                            newEl.focus();
+                            newEl.selectionStart = 0;
+                            newEl.selectionEnd = 0;
+                          }
                         }, 10);
                       }}
                       onBackspaceEmpty={() => {
@@ -607,7 +613,7 @@ function TextBlock({
 }: {
   block: Block;
   onChange: (content: string) => void;
-  onEnter: () => void;
+  onEnter: (before: string, after: string) => void;
   onBackspaceEmpty: () => void;
   autoResize: (el: HTMLTextAreaElement | null) => void;
 }) {
@@ -617,7 +623,11 @@ function TextBlock({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onEnter();
+      const el = ref.current;
+      const pos = el?.selectionStart ?? block.content.length;
+      const before = block.content.slice(0, pos);
+      const after = block.content.slice(pos);
+      onEnter(before, after);
     }
     if (e.key === "Backspace" && block.content === "") {
       e.preventDefault();
@@ -625,16 +635,17 @@ function TextBlock({
     }
   };
 
-  // Detect markdown formatting from content
+  // Detect markdown formatting — only apply if block is a single line
   const c = block.content;
-  const h1 = /^# /.test(c);
-  const h2 = /^## /.test(c);
-  const h3 = /^### /.test(c);
+  const singleLine = !c.includes("\n");
+  const h1 = singleLine && /^# /.test(c);
+  const h2 = singleLine && /^## /.test(c);
+  const h3 = singleLine && /^### /.test(c);
   const isList = /^[-*] /.test(c);
   const isNumbered = /^\d+\. /.test(c);
   const isQuote = /^> /.test(c);
   const isCode = /^```/.test(c);
-  const isHr = /^---\s*$/.test(c);
+  const isHr = singleLine && /^---\s*$/.test(c);
 
   let blockStyle: React.CSSProperties = {
     fontSize: "var(--text-base)",
