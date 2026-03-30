@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import SongSuggest from "./SongSuggest";
-
 interface Track {
   isPlaying: boolean;
   title: string;
@@ -117,8 +115,6 @@ export default function NowPlaying() {
       <div className="flex items-center gap-2 text-muted h-full">
         <AsciiWave playing={false} />
         <span>not playing</span>
-        <span className="mx-1">·</span>
-        <SongSuggest />
       </div>
     );
   }
@@ -128,8 +124,6 @@ export default function NowPlaying() {
       <div className="flex items-center gap-2 text-muted">
         <AsciiWave playing={track.isPlaying} />
         <span>****</span>
-        <span className="mx-1">·</span>
-        <SongSuggest />
       </div>
     );
   }
@@ -151,8 +145,6 @@ export default function NowPlaying() {
         <AsciiWave playing={track.isPlaying} />
         <span className="truncate">{display}</span>
       </a>
-      <span className="text-muted mx-1 shrink-0">·</span>
-      <SongSuggest />
     </div>
   );
 }

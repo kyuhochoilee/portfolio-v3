@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import Link from "next/link";
-import Container from "@/components/ui/Container";
 import MdxContent from "@/components/MdxContent";
 import { getProject, getProjects } from "@/lib/content";
 
@@ -32,89 +30,91 @@ export default async function ProjectPage({ params }: PageProps) {
 
   const { meta, content } = project;
 
+  const formattedTimeline = meta.timeline?.toLowerCase() || "";
+
   return (
-    <Container
-      as="article"
+    <article
       style={{ paddingTop: "var(--header-safe)", paddingBottom: "var(--footer-safe)", fontFamily: "var(--font-display)" }}
     >
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-muted hover:text-fg transition-colors mb-8"
-      >
-        &larr; back
-      </Link>
-
-      {meta.headerImage && (
-        <img
-          src={meta.headerImage}
-          alt=""
-          className="w-full rounded-[var(--radius-lg)] mb-8"
-        />
-      )}
-
-      <header className="mb-8 max-w-2xl">
-        <h1
-          className="text-2xl tracking-tight leading-tight mb-2"
-          style={{ color: "var(--color-orange)" }}
-        >
-          {meta.title.toLowerCase()}
-        </h1>
-        {meta.description && (
-          <p className="text-base text-muted mb-4">{meta.description.toLowerCase()}</p>
-        )}
-
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          {meta.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-xs"
-              style={{ color: "var(--color-purple)" }}
-            >
-              #{tag.toLowerCase()}
-            </span>
-          ))}
-          {meta.link && (
-            <a
-              href={meta.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs underline transition-colors"
-              style={{ color: "var(--color-purple)" }}
-            >
-              view project &rarr;
-            </a>
+      {/* Post header — same structure as thoughts */}
+      <div className="flex justify-center" style={{ padding: "0 1.5rem" }}>
+        <div style={{ width: "33rem", maxWidth: "100%" }}>
+          {/* Header image */}
+          {meta.headerImage && (
+            <div className="relative aspect-[16/10] mb-6 overflow-hidden" style={{ borderRadius: "var(--radius-md)" }}>
+              <img
+                src={meta.headerImage}
+                alt={meta.title}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </div>
           )}
+
+          {/* Title — centered */}
+          <h1 className="subheading text-center" style={{ paddingBottom: "0.5rem" }}>
+            {meta.title.toLowerCase()}
+          </h1>
+
+          {/* Description — centered */}
+          {meta.description && (
+            <p className="text-muted text-sm text-center" style={{ paddingBottom: "0.5rem" }}>
+              {meta.description.toLowerCase()}
+            </p>
+          )}
+
+          {/* Metadata — centered */}
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted">
+            {meta.role && <span>{meta.role.toLowerCase()}</span>}
+            {meta.role && formattedTimeline && <span>·</span>}
+            {formattedTimeline && <span>{formattedTimeline}</span>}
+          </div>
+
+          {/* Tags + link — centered */}
+          {(meta.tags.length > 0 || meta.link) && (
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+              {meta.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-xs"
+                  style={{ color: "var(--color-purple)" }}
+                >
+                  #{tag.toLowerCase()}
+                </span>
+              ))}
+              {meta.link && (
+                <a
+                  href={meta.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline transition-colors"
+                  style={{ color: "var(--color-purple)" }}
+                >
+                  view project &rarr;
+                </a>
+              )}
+            </div>
+          )}
+
+          {/* Divider */}
+          <div
+            className="mx-auto"
+            style={{
+              width: "3rem",
+              height: "1px",
+              background: "var(--color-border)",
+              marginTop: "1.5rem",
+              marginBottom: "1.5rem",
+            }}
+          />
         </div>
+      </div>
 
-        <div className="flex flex-wrap gap-6 text-sm border-t border-border pt-4">
-          {meta.role && (
-            <div>
-              <span className="text-muted uppercase tracking-wide text-xs">
-                role
-              </span>
-              <p className="text-fg">{meta.role.toLowerCase()}</p>
-            </div>
-          )}
-          {meta.tools && meta.tools.length > 0 && (
-            <div>
-              <span className="text-muted uppercase tracking-wide text-xs">
-                tools
-              </span>
-              <p className="text-fg">{meta.tools.join(", ").toLowerCase()}</p>
-            </div>
-          )}
-          {meta.timeline && (
-            <div>
-              <span className="text-muted uppercase tracking-wide text-xs">
-                timeline
-              </span>
-              <p className="text-fg">{meta.timeline.toLowerCase()}</p>
-            </div>
-          )}
+      {/* Body — same width as thoughts */}
+      <div className="flex justify-center" style={{ padding: "0 1.5rem" }}>
+        <div style={{ width: "33rem", maxWidth: "100%" }}>
+          <MdxContent source={content} />
         </div>
-      </header>
-
-      <MdxContent source={content} />
-    </Container>
+      </div>
+    </article>
   );
 }

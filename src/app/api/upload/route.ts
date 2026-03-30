@@ -27,8 +27,13 @@ export async function POST(req: NextRequest) {
 
   // Compress and convert to webp
   const rawBuffer = Buffer.from(await file.arrayBuffer());
+  const isHeader = formData.get("header") === "true";
+  const resizeOpts = isHeader
+    ? { width: MAX_WIDTH, height: Math.round(MAX_WIDTH * 10 / 16), fit: "cover" as const, withoutEnlargement: true }
+    : { width: MAX_WIDTH, withoutEnlargement: true };
+
   const compressed = await sharp(rawBuffer)
-    .resize({ width: MAX_WIDTH, withoutEnlargement: true })
+    .resize(resizeOpts)
     .webp({ quality: QUALITY })
     .toBuffer();
 

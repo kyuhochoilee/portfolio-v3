@@ -19,11 +19,12 @@ function TimelineItem({
       className="group flex items-start gap-3 w-full text-left cursor-pointer py-2"
       style={{ fontFamily: "var(--font-display)" }}
     >
-      <div className="shrink-0 pt-1.5">
+      <div className="shrink-0 pt-1.5 relative z-10">
         <div
           className="w-1.5 h-1.5 rounded-full transition-colors"
           style={{
-            background: isActive ? "var(--color-orange)" : "var(--color-border)",
+            background: isActive ? "var(--color-orange)" : "var(--color-bg)",
+            border: isActive ? "none" : "1.5px solid var(--color-border)",
           }}
         />
       </div>

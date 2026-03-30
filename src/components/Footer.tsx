@@ -2,6 +2,7 @@
 
 import { useRef, useCallback, useEffect, useState, type RefObject } from "react";
 import NowPlaying from "./NowPlaying";
+import SongSuggest from "./SongSuggest";
 import FooterClock from "./FooterClock";
 import { useScrollContext } from "@/context/ScrollContext";
 
@@ -60,6 +61,14 @@ function IconPalette() {
   );
 }
 
+function IconBack() {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="shrink-0">
+      <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function IconProfile() {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="shrink-0">
@@ -69,11 +78,12 @@ function IconProfile() {
 }
 
 function NavItem({
-  section, icon: Icon, label, index, isOpen, onHover, onLeave, href, scrollerRef,
+  section, icon: Icon, label, index, isOpen, onHover, onLeave, href, scrollerRef, detailBacksRef,
 }: {
   section: string; icon: React.FC; label: string; index: number;
   isOpen: boolean; onHover: () => void; onLeave: () => void; href?: string;
   scrollerRef: RefObject<HTMLDivElement | null>;
+  detailBacksRef: React.MutableRefObject<Record<string, (() => void) | undefined>>;
 }) {
   const textRef = useRef<HTMLSpanElement>(null);
   const pillRef = useRef<HTMLSpanElement>(null);
@@ -141,9 +151,15 @@ function NavItem({
       window.location.href = href;
       return;
     }
+
+    // If clicking a section while its detail is open, collapse it
+    if (detailBacksRef.current[section]) {
+      detailBacksRef.current[section]!();
+      return;
+    }
+
     const scroller = scrollerRef.current;
     if (!scroller) {
-      // Not on the home page — navigate there with hash
       window.location.href = section === "home" ? "/" : `/#${section}`;
       return;
     }
@@ -217,7 +233,7 @@ const NAV_ITEMS = [
 ];
 
 export default function Footer() {
-  const { scrollerRef } = useScrollContext();
+  const { scrollerRef, detailBacksRef, openDetails } = useScrollContext();
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
@@ -296,13 +312,13 @@ export default function Footer() {
   return (
     <footer
       className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none"
-      style={{ padding: "0 1rem 1rem" }}
+      style={{ padding: "0 1rem 1.5rem" }}
     >
       {/* Background blur for text readability */}
       <div
         className="fixed bottom-0 left-0 right-0 pointer-events-none"
         style={{
-          height: 100,
+          height: 140,
           background:
             "linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-bg) 60%, transparent) 40%, color-mix(in srgb, var(--color-bg) 90%, transparent) 70%, var(--color-bg))",
           maskImage:
@@ -312,17 +328,19 @@ export default function Footer() {
         }}
       />
 
-      {/* NowPlaying — bottom left */}
+      {/* NowPlaying — bottom left (desktop) */}
       <div
         className="fixed bottom-0 left-0 pointer-events-auto hidden md:flex items-center"
         style={{
           fontFamily: '"GT Alpina Typewriter Trial", serif',
           fontSize: "var(--text-sm)",
-          padding: "1.25rem 1.5rem",
+          padding: "2rem 1.5rem",
           maxWidth: "35%",
         }}
       >
         <NowPlaying />
+        <span className="text-muted mx-3 shrink-0">·</span>
+        <SongSuggest />
       </div>
 
       {/* Floating command bar — center */}
@@ -339,6 +357,32 @@ export default function Footer() {
           boxShadow: "0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)",
         }}
       >
+        {/* Back button — pops into the pill on mobile when current section has an open detail */}
+        {(() => {
+          const currentSection = NAV_ITEMS[activeNav]?.section;
+          const showBack = currentSection && openDetails.includes(currentSection);
+          return showBack ? (
+            <>
+              <button
+                onClick={() => detailBacksRef.current[currentSection]?.()}
+                className="relative flex md:hidden items-center text-muted hover:text-fg cursor-pointer"
+                style={{
+                  height: `${size + 16}px`,
+                  opacity: 0,
+                  ["--nav-spread" as string]: "-20px",
+                  transform: "translateX(var(--nav-spread)) scale(1.3)",
+                  animation: "navPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+                }}
+                aria-label="Back"
+              >
+                <span className="relative flex items-center" style={{ padding: "0 0.5rem" }}>
+                  <IconBack />
+                </span>
+              </button>
+              <div className="md:hidden w-px self-stretch opacity-20" style={{ background: "var(--color-border)" }} />
+            </>
+          ) : null;
+        })()}
         {NAV_ITEMS.map((item, i) => (
           <NavItem
             key={item.section}
@@ -348,6 +392,7 @@ export default function Footer() {
             onHover={() => handleNavHover(i)}
             onLeave={handleNavLeave}
             scrollerRef={scrollerRef}
+            detailBacksRef={detailBacksRef}
           />
         ))}
       </nav>
@@ -358,7 +403,7 @@ export default function Footer() {
         style={{
           fontFamily: '"GT Alpina Typewriter Trial", serif',
           fontSize: "var(--text-sm)",
-          padding: "1.25rem 1.5rem",
+          padding: "2rem 1.5rem",
         }}
       >
         <FooterClock />

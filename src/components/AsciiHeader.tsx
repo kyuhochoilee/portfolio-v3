@@ -15,11 +15,8 @@ export default function AsciiHeader() {
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50"
-      style={{
-        height: HEADER_H + 40,
-        pointerEvents: "none",
-      }}
+      className="fixed top-0 left-0 right-0 z-50 h-14 md:h-24"
+      style={{ pointerEvents: "none" }}
     >
       {/* Always-visible blur */}
       <div

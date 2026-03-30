@@ -112,23 +112,28 @@ export default function HalftoneHero() {
     };
   }, []);
 
-  // Pause when off-screen
+  // Pause when off-screen — delay observer so initial scroll to "home" lands first
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        const wasVisible = visibleRef.current;
-        visibleRef.current = entry.isIntersecting;
-        // Restart loop when becoming visible again
-        if (!wasVisible && entry.isIntersecting) {
-          animRef.current = requestAnimationFrame(draw);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
+    let obs: IntersectionObserver | null = null;
+    const timer = setTimeout(() => {
+      obs = new IntersectionObserver(
+        ([entry]) => {
+          const wasVisible = visibleRef.current;
+          visibleRef.current = entry.isIntersecting;
+          if (!wasVisible && entry.isIntersecting) {
+            animRef.current = requestAnimationFrame(draw);
+          }
+        },
+        { threshold: 0.1 }
+      );
+      obs.observe(el);
+    }, 800);
+    return () => {
+      clearTimeout(timer);
+      obs?.disconnect();
+    };
   }, []);
 
   // Split-flap animation for left label
@@ -248,13 +253,39 @@ export default function HalftoneHero() {
     const centerX = viewW / 2;
     const centerY = viewH / 2;
     const gridOffsetX = centerX - gridSpan / 2;
+    const gridOffsetY = centerY - gridSpan / 2;
 
-    // Center flanking text between screen edge and grid
+    // Position flanking text — above/below grid on mobile, left/right on desktop
+    const isMobile = viewW < 768;
     if (leftTextRef.current) {
-      leftTextRef.current.style.left = `${gridOffsetX / 2}px`;
+      if (isMobile) {
+        // Center between header blur (~70px) and grid top
+        const topMid = (70 + gridOffsetY) / 2;
+        leftTextRef.current.style.left = '50%';
+        leftTextRef.current.style.right = '';
+        leftTextRef.current.style.top = `${topMid}px`;
+        leftTextRef.current.style.transform = 'translate(-50%, -50%)';
+      } else {
+        leftTextRef.current.style.left = `${gridOffsetX / 2}px`;
+        leftTextRef.current.style.right = '';
+        leftTextRef.current.style.top = '50%';
+        leftTextRef.current.style.transform = 'translateX(-50%) translateY(-50%)';
+      }
     }
     if (rightTextRef.current) {
-      rightTextRef.current.style.right = `${gridOffsetX / 2}px`;
+      if (isMobile) {
+        // Center between grid bottom and footer area (~80px from bottom)
+        const bottomMid = (gridOffsetY + gridSpan + (viewH - 80)) / 2;
+        rightTextRef.current.style.left = '50%';
+        rightTextRef.current.style.right = '';
+        rightTextRef.current.style.top = `${bottomMid}px`;
+        rightTextRef.current.style.transform = 'translate(-50%, -50%)';
+      } else {
+        rightTextRef.current.style.left = '';
+        rightTextRef.current.style.right = `${gridOffsetX / 2}px`;
+        rightTextRef.current.style.top = '50%';
+        rightTextRef.current.style.transform = 'translateX(50%) translateY(-50%)';
+      }
     }
 
     // Publish grid screen bounds so AsciiCursor can check overlap
@@ -264,7 +295,6 @@ export default function HalftoneHero() {
       right: rect.left + gridOffsetX + gridSpan,
       bottom: rect.top + (centerY - gridSpan / 2) + gridSpan,
     };
-    const gridOffsetY = centerY - gridSpan / 2;
 
     const mx = mouseRef.current.x;
     const my = mouseRef.current.y;
@@ -283,7 +313,7 @@ export default function HalftoneHero() {
     const midT = 0.5 + Math.sin(time * 0.6) * 0.15;
     const nameC = lerpColor(PALETTE, midT);
 
-    const fontSize = Math.min(viewW * 0.08, 80) * scale;
+    const fontSize = gridSpan * 0.21;
     ctx.save();
     ctx.font = `400 ${fontSize}px "GT Alpina Typewriter Trial", serif`;
     ctx.textAlign = "center";
@@ -415,12 +445,10 @@ export default function HalftoneHero() {
 
       <div
         ref={leftTextRef}
-        className="absolute z-10 hidden md:block"
+        className="absolute z-10"
         style={{
           fontFamily: '"GT Alpina Typewriter Trial", serif',
           fontSize: "var(--text-sm)",
-          top: "50%",
-          transform: "translateX(-50%) translateY(-50%)",
         }}
         onMouseEnter={() => setListOpen(true)}
         onMouseLeave={() => setListOpen(false)}
@@ -435,7 +463,7 @@ export default function HalftoneHero() {
           }}
         />
         {/* Expanded list */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex flex-col items-center pointer-events-none">
           {FLAP_WORDS.map((word, i) => {
             const mid = (FLAP_WORDS.length - 1) / 2;
             const offset = i - mid;
@@ -462,12 +490,10 @@ export default function HalftoneHero() {
 
       <p
         ref={rightTextRef}
-        className="absolute z-10 text-muted hidden md:block"
+        className="absolute z-10 text-muted"
         style={{
           fontFamily: '"GT Alpina Typewriter Trial", serif',
           fontSize: "var(--text-sm)",
-          top: "50%",
-          transform: "translateX(50%) translateY(-50%)",
         }}
       >
         currently @ <a href="https://speak.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-fg transition-colors">speak</a>

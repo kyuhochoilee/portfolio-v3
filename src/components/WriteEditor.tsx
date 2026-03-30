@@ -248,13 +248,14 @@ ${body}`;
           /* ====== PREVIEW MODE — matches prose styles exactly ====== */
           <div>
             {/* Header image */}
-            {headerImage && (
-              <img
-                src={headerImage}
-                alt=""
-                className="w-full mb-6"
-                style={{ borderRadius: "var(--radius-md)" }}
-              />
+            {headerImage && headerImage !== "uploading..." && (
+              <div className="relative aspect-[16/10] mb-6 overflow-hidden" style={{ borderRadius: "var(--radius-md)" }}>
+                <img
+                  src={headerImage}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
             )}
 
             {/* Title */}
@@ -304,11 +305,11 @@ ${body}`;
           <div>
             {/* Header image */}
             {headerImage ? (
-              <div className="relative mb-4 rounded-lg overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
+              <div className="relative mb-4 rounded-lg overflow-hidden aspect-[16/10]" style={{ border: "1px solid var(--color-border)" }}>
                 {headerImage === "uploading..." ? (
-                  <div className="w-full py-12 flex items-center justify-center text-muted text-xs">uploading...</div>
+                  <div className="absolute inset-0 flex items-center justify-center text-muted text-xs">uploading...</div>
                 ) : (
-                  <img src={headerImage} alt="" className="w-full block" />
+                  <img src={headerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 )}
                 <button
                   onClick={() => setHeaderImage("")}
@@ -343,6 +344,7 @@ ${body}`;
                 setHeaderImage("uploading...");
                 const form = new FormData();
                 form.append("file", file);
+                form.append("header", "true");
                 try {
                   const res = await fetch("/api/upload", {
                     method: "POST",
@@ -425,7 +427,7 @@ ${body}`;
 
                   {/* Add text/image — only on last block */}
                   {isLast && (
-                    <div className="mt-2 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="mt-2 flex items-center gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => addBlock("text", block.id)}
                         className="text-xs text-muted hover:text-fg transition-colors cursor-pointer"
@@ -579,9 +581,9 @@ function DragList({
               cursor: isDragging ? "grabbing" : undefined,
             }}
           >
-            {/* Drag handle — grab the block from here */}
+            {/* Drag handle — always visible on mobile, hover on desktop */}
             <div
-              className="absolute -left-6 top-0 bottom-0 w-6 flex items-start pt-1 justify-center opacity-0 group-hover:opacity-40 cursor-grab select-none"
+              className="absolute -left-6 top-0 bottom-0 w-6 flex items-start pt-1 justify-center opacity-40 md:opacity-0 md:group-hover:opacity-40 cursor-grab select-none touch-none"
               onPointerDown={(e) => startDrag(e, block.id)}
             >
               <span className="text-muted text-xs">⠿</span>

@@ -139,7 +139,7 @@ function FlapText({ text }: { text: string }) {
   );
 }
 
-export default function SongSuggest() {
+export default function SongSuggest({ showArrow = false }: { showArrow?: boolean } = {}) {
   const [phase, setPhase] = useState<Phase>("closed");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Track[]>([]);
@@ -239,7 +239,7 @@ export default function SongSuggest() {
         className="text-muted hover:text-fg transition-colors cursor-pointer shrink-0"
         style={{ fontFamily: '"GT Alpina Typewriter Trial", serif', fontSize: "var(--text-sm)" }}
       >
-        suggest a song
+        send me a song{showArrow && <> &rarr;</>}
       </button>
     );
   }
@@ -267,10 +267,11 @@ export default function SongSuggest() {
           fontSize: "var(--text-sm)",
           background: cardDissolved ? "transparent" : "var(--color-surface)",
           borderColor: cardDissolved ? "transparent" : undefined,
-          width: isCollapsed ? CARD_SZ + 20 : "min(100%, 28rem)",
-          maxHeight: isCollapsed ? CARD_SZ + 80 : 400,
+          width: isCollapsed ? CARD_SZ + 20 : "min(calc(100% - 2rem), 28rem)",
+          maxHeight: isCollapsed ? CARD_SZ + 80 : "min(calc(100dvh - 4rem), 400px)",
           overflow: isCollapsed ? "visible" : "hidden",
-          transition: "width 0.5s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease, border-color 0.4s ease",
+          borderRadius: "var(--radius-lg)",
+          transition: "width 0.5s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease, border-color 0.4s ease, border-radius 0.4s ease",
           ...(phase === "search" ? { animation: "suggestModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)" } : {}),
         }}
       >
@@ -322,7 +323,7 @@ export default function SongSuggest() {
         {isCollapsed && selected && (
           <div className="flex flex-col items-center" style={{ padding: "10px 10px 0" }}>
             {/* Art + ASCII layer */}
-            <div className="relative" style={{ width: CARD_SZ, height: CARD_SZ, marginTop: 2 }}>
+            <div className="relative overflow-hidden" style={{ width: CARD_SZ, height: CARD_SZ, marginTop: 2, borderRadius: "calc(var(--radius-lg) / 2)" }}>
               {/* Album art */}
               <img
                 src={selected.albumArt}

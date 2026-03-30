@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useScrollContext } from "@/context/ScrollContext";
 import type { ProjectMeta } from "@/lib/content";
 
 export default function ProjectsCard({
@@ -12,20 +13,44 @@ export default function ProjectsCard({
   projectContent: Record<string, React.ReactNode>;
 }) {
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const { registerDetailBack, unregisterDetailBack } = useScrollContext();
+  const contentRef = useRef<HTMLDivElement>(null);
   const isOpen = !!activeSlug;
   const activeProject = projects.find((p) => p.slug === activeSlug);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Scroll content to top when switching projects
+  useEffect(() => {
+    if (contentRef.current) contentRef.current.scrollTop = 0;
+  }, [activeSlug]);
+
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      registerDetailBack("projects", () => setActiveSlug(null));
+    } else {
+      unregisterDetailBack("projects");
+    }
+    return () => unregisterDetailBack("projects");
+  }, [isMobile, isOpen, registerDetailBack, unregisterDetailBack]);
 
   return (
     <div
       className="h-full"
       style={{
         display: "grid",
-        gridTemplateColumns: isOpen ? "320px 1fr 320px" : "1fr",
+        gridTemplateColumns: isOpen && !isMobile ? "320px 1fr 320px" : "1fr",
         fontFamily: "var(--font-display)",
       }}
     >
-      {/* Project list / grid */}
-      <div
+      {/* Project list / grid — hidden on mobile when project is open */}
+      {!(isMobile && isOpen) && <div
         className="relative overflow-y-auto"
         style={{
           paddingBottom: "var(--footer-safe)",
@@ -51,9 +76,10 @@ export default function ProjectsCard({
             </p>
           </div>
           <div
-            className="pointer-events-none"
+            className="absolute left-0 right-0 pointer-events-none"
             style={{
-              height: "2rem",
+              bottom: "-1rem",
+              height: "1rem",
               background: "linear-gradient(to bottom, var(--color-bg), transparent)",
             }}
           />
@@ -81,11 +107,12 @@ export default function ProjectsCard({
                   onClick={() => setActiveSlug(activeSlug === project.slug ? null : project.slug)}
                   className="group flex items-start gap-3 w-full text-left cursor-pointer py-2"
                 >
-                  <div className="shrink-0 pt-1.5">
+                  <div className="shrink-0 pt-1.5 relative z-10">
                     <div
                       className="w-1.5 h-1.5 rounded-full transition-colors"
                       style={{
-                        background: activeSlug === project.slug ? "var(--color-orange)" : "var(--color-border)",
+                        background: activeSlug === project.slug ? "var(--color-orange)" : "var(--color-bg)",
+                        border: activeSlug === project.slug ? "none" : "1.5px solid var(--color-border)",
                       }}
                     />
                   </div>
@@ -114,7 +141,7 @@ export default function ProjectsCard({
                         <video
                           src={project.featuredImage}
                           autoPlay loop muted playsInline preload="auto"
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          className="h-full w-full object-cover scale-[1.15] transition-transform duration-500 group-hover:scale-[1.18]"
                         />
                       ) : project.featuredImage ? (
                         <Image
@@ -142,89 +169,103 @@ export default function ProjectsCard({
             </div>
           )}
         </div>
-      </div>
+      </div>}
 
       {/* Project content — only when open */}
       {isOpen && (() => {
         return (
           <>
             <div
-              className="relative overflow-y-auto"
+              ref={contentRef}
+              className="relative overflow-y-auto mx-auto w-full"
               style={{
                 paddingBottom: "var(--footer-safe)",
                 animation: "expandIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                overscrollBehavior: "auto",
+                maxWidth: isMobile ? "36rem" : undefined,
+                paddingLeft: isMobile ? "1.5rem" : undefined,
+                paddingRight: isMobile ? "1.5rem" : undefined,
               }}
             >
-              {/* Sticky project header */}
-              <div
-                className="sticky top-0 z-20"
-                style={{ paddingTop: "var(--header-safe)", background: "var(--color-bg)" }}
-              >
-                <div className="flex justify-center" style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
-                  <div style={{ width: "33rem", maxWidth: "100%" }}>
-                    <div className="flex items-center justify-between">
-                      <button
-                        onClick={() => setActiveSlug(null)}
-                        className="text-sm text-muted hover:text-fg transition-colors cursor-pointer"
-                      >
-                        &larr; back
-                      </button>
-                      {activeProject?.timeline && (
-                        <span className="text-muted text-xs">{activeProject.timeline.toLowerCase()}</span>
-                      )}
-                    </div>
-                    <h2 className="subheading" style={{ paddingTop: "0.5rem", paddingBottom: "0.25rem" }}>
+              {/* Project header — article style, scrolls with content */}
+              <div style={{ paddingTop: "var(--header-safe)" }}>
+                <div className="flex justify-center" style={{ paddingLeft: isMobile ? 0 : "1.5rem", paddingRight: isMobile ? 0 : "1.5rem" }}>
+                  <div style={{ width: isMobile ? "100%" : "33rem", maxWidth: "100%" }}>
+                    {/* Header image */}
+                    {activeProject?.headerImage && (
+                      <div className="relative aspect-[16/10] mb-6 overflow-hidden" style={{ borderRadius: "var(--radius-md)" }}>
+                        <img
+                          src={activeProject.headerImage}
+                          alt={activeProject.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+
+                    {/* Title — centered */}
+                    <h2 className="subheading text-center" style={{ paddingBottom: "0.5rem" }}>
                       {activeProject?.title.toLowerCase()}
                     </h2>
+
+                    {/* Description — centered */}
                     {activeProject?.description && (
-                      <p className="text-muted text-sm" style={{ paddingBottom: "0.25rem" }}>
+                      <p className="text-muted text-sm text-center" style={{ paddingBottom: "0.5rem" }}>
                         {activeProject.description.toLowerCase()}
                       </p>
                     )}
-                    {activeProject?.role && (
-                      <p className="text-muted text-xs" style={{ paddingBottom: "0.25rem" }}>
-                        {activeProject.role.toLowerCase()}
-                        {activeProject.tools && activeProject.tools.length > 0 && (
-                          <> · {activeProject.tools.join(", ").toLowerCase()}</>
+
+                    {/* Metadata — centered */}
+                    <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted">
+                      {activeProject?.role && <span>{activeProject.role.toLowerCase()}</span>}
+                      {activeProject?.role && activeProject?.timeline && <span>·</span>}
+                      {activeProject?.timeline && <span>{activeProject.timeline.toLowerCase()}</span>}
+                    </div>
+
+                    {/* Tags + link — centered */}
+                    {((activeProject?.tags?.length ?? 0) > 0 || activeProject?.link) && (
+                      <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+                        {activeProject?.tags?.map((tag) => (
+                          <span key={tag} className="text-xs" style={{ color: "var(--color-purple)" }}>
+                            #{tag.toLowerCase()}
+                          </span>
+                        ))}
+                        {activeProject?.link && (
+                          <a
+                            href={activeProject.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs transition-colors"
+                            style={{ color: "var(--color-purple)" }}
+                          >
+                            view project &rarr;
+                          </a>
                         )}
-                      </p>
+                      </div>
                     )}
-                    {activeProject?.link && (
-                      <a
-                        href={activeProject.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs transition-colors"
-                        style={{ color: "var(--color-orange)" }}
-                      >
-                        view project &rarr;
-                      </a>
-                    )}
+
+                    {/* Divider */}
+                    <div
+                      className="mx-auto"
+                      style={{
+                        width: "3rem",
+                        height: "1px",
+                        background: "var(--color-border)",
+                        marginTop: "1.5rem",
+                        marginBottom: "1.5rem",
+                      }}
+                    />
                   </div>
                 </div>
-                <div
-                  className="pointer-events-none"
-                  style={{
-                    height: "3rem",
-                    background: "linear-gradient(to bottom, var(--color-bg) 20%, transparent)",
-                  }}
-                />
               </div>
 
               {/* Project body */}
-              <div className="flex justify-center" style={{ paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
-                <div style={{ width: "33rem", maxWidth: "100%" }}>
+              <div className="flex justify-center" style={{ paddingLeft: isMobile ? 0 : "1.5rem", paddingRight: isMobile ? 0 : "1.5rem" }}>
+                <div style={{ width: isMobile ? "100%" : "33rem", maxWidth: "100%" }}>
                   {activeSlug && projectContent[activeSlug]}
-                  <button
-                    onClick={() => setActiveSlug(null)}
-                    className="mt-8 mb-4 text-sm text-muted hover:text-fg transition-colors cursor-pointer"
-                  >
-                    &larr; back
-                  </button>
                 </div>
               </div>
             </div>
-            <div />
+            {!isMobile && <div />}
           </>
         );
       })()}

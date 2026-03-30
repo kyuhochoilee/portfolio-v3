@@ -76,7 +76,7 @@
   --space-32: 8rem;
 
   /* Safe zones — match header/footer blur heights */
-  --header-safe: 110px;
+  --header-safe: 72px;
   --footer-safe: 180px;
 
   /* --- Radii --- */
@@ -95,6 +95,12 @@
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-slow: 400ms;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-safe: 110px;
+  }
 }
 
 /* --- Dark mode tokens — triggered by .dark class or system preference --- */
@@ -188,6 +194,29 @@ body {
   text-transform: uppercase;
   letter-spacing: -0.02em;
   color: var(--color-orange);
+}
+
+@keyframes scrollLoop0 {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes scrollLoop1 {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+@keyframes scrollLoop2 {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.creative-scroll:hover,
+.creative-row:active .creative-scroll {
+  animation-play-state: paused !important;
+}
+
+/* Allow touch scrolling on the row */
+.creative-row {
+  -webkit-overflow-scrolling: touch;
 }
 
 ::selection {

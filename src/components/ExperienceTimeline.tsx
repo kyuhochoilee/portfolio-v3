@@ -48,7 +48,7 @@ interface Experience {
 
 const EXPERIENCES: Experience[] = [
   {
-    company: "speak (openai, yc, founders fund)",
+    company: "speak (openai)",
     logo: "/logo-speak.jpeg",
     link: "https://speak.com",
     roles: [
@@ -81,18 +81,12 @@ const EXPERIENCES: Experience[] = [
     link: "https://isteamacademy.org",
     roles: [{ title: "brand designer", dates: "2022 - 2023" }],
   },
-  {
-    company: "university of pennsylvania",
-    logo: "/logo-penn.png",
-    link: "https://upenn.edu",
-    roles: [{ title: "b.a. design, cs & psych", dates: "2021 - 2025" }],
-  },
 ];
 
 export default function ExperienceTimeline() {
   return (
     <div style={{ fontFamily: "var(--font-display)" }}>
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-4">
         {EXPERIENCES.map((exp) => (
           <li key={exp.company}>
             <a
@@ -109,7 +103,7 @@ export default function ExperienceTimeline() {
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-xs text-muted leading-tight">{exp.company}</span>
+                  <span className="text-xs text-muted group-hover:text-fg transition-colors leading-tight">{exp.company}</span>
                   <span className="text-xs text-muted shrink-0">
                     {exp.roles.length === 1 ? exp.roles[0].dates : `${exp.roles[exp.roles.length - 1].dates.split(" - ")[0]} - ${exp.roles[0].current ? "present" : exp.roles[0].dates.split(" - ").pop()}`}
                   </span>
