@@ -1,0 +1,82 @@
+---
+title: Design Systems Are Boring (That's the Point)
+description: Why the most impactful design work is the stuff nobody notices.
+date: 2024-09-22
+tags: [design, systems]
+---
+
+Everyone wants to design the hero section. The flashy animation. The thing that makes people go "wow."
+
+But the work that actually scales? It's the spacing tokens. The color variables. The component API that makes it impossible to build something ugly. It's boring. And it's the most important design work you can do.
+
+## Why I Started Caring About Systems
+
+At Speak, I built a design system from scratch. The first month, nobody noticed. The second month, engineers started shipping features twice as fast. The third month, new designers onboarded in days instead of weeks.
+
+The best design systems are invisible. You don't see them — you feel their absence when they're missing.
+
+## The Anatomy of a Good Design System
+
+A design system isn't a Figma library. It's not a component kit. It's not a style guide. It's all of those things working together, plus the processes and principles that hold them together.
+
+### Tokens First
+
+Everything starts with tokens. Colors, spacing, typography, radii, shadows. These are the atoms of your visual language. Get these right and everything downstream benefits.
+
+I've seen teams skip this step and go straight to components. They end up with 47 shades of gray, 12 different spacing values, and buttons that look slightly different on every page. Don't skip tokens.
+
+### Components That Compose
+
+The best components are the ones that do one thing well and compose with everything else. A Card component shouldn't know about the Grid it sits in. A Button shouldn't know about the Form it lives in.
+
+When components are too smart, they become rigid. When they're too dumb, they become tedious. The sweet spot is components that are opinionated about their own presentation but flexible about their context.
+
+### Documentation That Lives
+
+Dead documentation is worse than no documentation. If your design system docs are a PDF that was last updated six months ago, you effectively have no documentation.
+
+The best design system docs I've seen are:
+- **Co-located with the code** — they update when the component updates
+- **Interactive** — you can play with the component right in the docs
+- **Searchable** — nobody reads docs top to bottom
+- **Honest** — they document the known limitations and workarounds
+
+## The Hard Parts Nobody Talks About
+
+### Getting Buy-In
+
+The hardest part of building a design system isn't the design or the code. It's convincing people to use it. Engineers have their own patterns. Designers have their own preferences. PMs want features, not infrastructure.
+
+You have to sell the system by showing results, not by mandating adoption. Ship a feature using the system that would have taken twice as long without it. That's your pitch deck.
+
+### Handling Exceptions
+
+Every design system eventually encounters something it can't handle. A one-off marketing page. A feature with unique requirements. A stakeholder with strong opinions.
+
+The worst thing you can do is refuse to accommodate exceptions. The second worst thing is accommodating every exception. The right approach is to have a clear process for evaluating exceptions.
+
+### Versioning and Migration
+
+This is where most design systems die. Version 1 ships, it's great, everyone uses it. Then you need to make a breaking change. Now you have two versions. Then three. Then nobody knows which version to use and the whole thing collapses.
+
+The solution is to design for change from the beginning:
+- Use semantic versioning
+- Make migrations incremental, not all-or-nothing
+- Provide codemods where possible
+- Communicate changes early and often
+
+## What I'd Do Differently
+
+If I were building another design system from scratch, I'd:
+
+1. **Start smaller** — launch with 5 components, not 50
+2. **Invest more in tokens** — they're the foundation everything builds on
+3. **Build the docs first** — if you can't document it simply, you can't build it simply
+4. **Ship weekly** — small, frequent updates beat big, infrequent releases
+5. **Measure adoption** — if you can't measure it, you can't improve it
+
+## The Bottom Line
+
+Design systems are boring. That's the point. The goal isn't to make the system exciting — it's to make everything built with the system exciting. The system is the stage. The product is the performance.
+
+If your design system is the most interesting thing about your product, you're doing it wrong. If your product is great and nobody thinks about the design system at all, you've nailed it.

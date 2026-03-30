@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import AsciiHeader from "@/components/AsciiHeader";
+import Footer from "@/components/Footer";
+import AsciiCursor from "@/components/AsciiCursor";
+import { ScrollProvider } from "@/context/ScrollContext";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -13,9 +18,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kyuho Lee",
+  title: {
+    default: "Kyuho Lee",
+    template: "%s — Kyuho Lee",
+  },
   description:
-    "Portfolio of Kyuho Lee — product designer, design engineer, and full-stack creator building AI-powered apps, growth-focused UX, and brand-driven experiences.",
+    "Designer, engineer, and creative — crafting experiences that scale, resonate, and endure.",
 };
 
 export default function RootLayout({
@@ -24,11 +32,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" className={`${inter.variable} ${geistMono.variable}`} suppressHydrationWarning>
+      <body className="antialiased">
+        <ScrollProvider>
+          <AsciiHeader />
+          <AsciiCursor />
+          <main>{children}</main>
+          <Footer />
+        </ScrollProvider>
       </body>
     </html>
   );
