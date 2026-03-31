@@ -8,8 +8,8 @@ import SongSuggest from "@/components/SongSuggest";
 export default function AboutSection() {
   return (
     <section
-      className="flex items-start justify-center w-full h-screen overflow-y-auto"
-      style={{ background: "var(--color-bg)", paddingTop: "var(--header-safe)", paddingBottom: "var(--footer-safe)" }}
+      className="flex items-start justify-center w-full overflow-y-auto"
+      style={{ height: "100dvh", background: "var(--color-bg)", paddingTop: "var(--header-safe)", paddingBottom: "var(--footer-safe)" }}
     >
       <Container className="max-w-4xl">
         <h2 className="subheading" style={{ marginBottom: "1.5rem" }}>

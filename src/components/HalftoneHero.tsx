@@ -433,7 +433,7 @@ export default function HalftoneHero() {
   );
 
   return (
-    <section ref={sectionRef} className="relative flex items-center justify-center w-full h-screen select-none overflow-hidden">
+    <section ref={sectionRef} className="relative flex items-center justify-center w-full select-none overflow-hidden" style={{ height: "100dvh" }}>
       <canvas
         ref={canvasRef}
         onMouseMove={handleMouseMove}

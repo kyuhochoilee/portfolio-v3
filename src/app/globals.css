@@ -219,8 +219,9 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-@media (min-width: 768px) {
-  .snap-mandatory-desktop { scroll-snap-type: y mandatory !important; }
+.snap-section {
+  height: 100dvh;
+  scroll-snap-align: start;
 }
 
 ::selection {

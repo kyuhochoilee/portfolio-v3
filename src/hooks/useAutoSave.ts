@@ -29,6 +29,7 @@ export function useAutoSave({
   const shaRef = useRef(initialSha || "");
   const slugRef = useRef(existingSlug || "");
   const changeCounter = useRef(0);
+  const pausedRef = useRef(false);
   const [status, setStatus] = useState("");
 
   const markChanged = useCallback(() => {
@@ -40,6 +41,10 @@ export function useAutoSave({
 
   // Save immediately (for publish/unpublish)
   const saveNow = useCallback(async (isDraft: boolean): Promise<boolean> => {
+    // Pause auto-save so it doesn't overwrite this save with draft: true
+    pausedRef.current = true;
+    changeCounter.current = 0;
+
     const slug = slugRef.current || slugify(title);
     slugRef.current = slug;
     const payload: Record<string, string> = { slug, content: buildContent(isDraft) };
@@ -54,9 +59,13 @@ export function useAutoSave({
       if (res.ok) {
         const data = await res.json();
         if (data.sha) shaRef.current = data.sha;
+        // Reset change counter again so auto-save doesn't immediately re-save
+        changeCounter.current = 0;
+        pausedRef.current = false;
         return true;
       }
     } catch { /* silent */ }
+    pausedRef.current = false;
     return false;
   }, [title, buildContent]);
 
@@ -78,6 +87,7 @@ export function useAutoSave({
   // Auto-save interval
   useEffect(() => {
     const interval = setInterval(async () => {
+      if (pausedRef.current) return;
       if (changeCounter.current === 0) return;
       if (!title.trim()) return;
       changeCounter.current = 0;

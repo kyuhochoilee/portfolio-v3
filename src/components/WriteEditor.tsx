@@ -24,6 +24,7 @@ export default function WriteEditor({
   initialTitle = "",
   initialDescription = "",
   initialBody = "",
+  initialHeaderImage = "",
   slug: existingSlug,
   sha,
   initialDraft = true,
@@ -31,6 +32,7 @@ export default function WriteEditor({
   initialTitle?: string;
   initialDescription?: string;
   initialBody?: string;
+  initialHeaderImage?: string;
   slug?: string;
   sha?: string;
   initialDraft?: boolean;
@@ -40,26 +42,36 @@ export default function WriteEditor({
   const [description, setDescription] = useState(initialDescription);
   const [blocks, setBlocks] = useState<Block[]>(() => {
     if (initialBody) {
-      // Parse existing body into blocks
+      // Parse existing body into blocks using matchAll for robustness
       const parsed: Block[] = [];
-      const parts = initialBody.split(/!\[([^\]]*)\]\(([^)]+)\)/);
-      for (let i = 0; i < parts.length; i++) {
-        if (i % 3 === 0) {
-          // Text part
-          const text = parts[i].trim();
-          if (text) parsed.push({ id: newId(), type: "text", content: text });
-        } else if (i % 3 === 2) {
-          // Image URL (i-1 is alt/caption)
-          parsed.push({ id: newId(), type: "image", content: parts[i], caption: parts[i - 1] || "" });
+      const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+      let lastIndex = 0;
+      let match: RegExpExecArray | null;
+
+      while ((match = imageRegex.exec(initialBody)) !== null) {
+        // Text before this image
+        const textBefore = initialBody.slice(lastIndex, match.index).trim();
+        if (textBefore) {
+          parsed.push({ id: newId(), type: "text", content: textBefore });
         }
+        // The image itself
+        parsed.push({ id: newId(), type: "image", content: match[2], caption: match[1] || "" });
+        lastIndex = match.index + match[0].length;
       }
-      if (parsed.length === 0) parsed.push({ id: newId(), type: "text", content: initialBody });
+
+      // Text after the last image (or the entire body if no images)
+      const remaining = initialBody.slice(lastIndex).trim();
+      if (remaining) {
+        parsed.push({ id: newId(), type: "text", content: remaining });
+      }
+
+      if (parsed.length === 0) parsed.push({ id: newId(), type: "text", content: "" });
       return parsed;
     }
     return [{ id: newId(), type: "text", content: "" }];
   });
 
-  const [headerImage, setHeaderImage] = useState("");
+  const [headerImage, setHeaderImage] = useState(initialHeaderImage);
   const [isDraft, setIsDraft] = useState(initialDraft);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);

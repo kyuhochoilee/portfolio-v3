@@ -162,54 +162,43 @@ export default function HomeLayout({
       <div
         ref={scrollRef}
         data-snap-container
-        className="h-screen overflow-y-auto snap-mandatory-desktop"
+        className="overflow-y-auto"
         style={{
-          scrollSnapType: "y proximity",
+          height: "100dvh",
+          scrollSnapType: "y mandatory",
           scrollBehavior: "smooth",
         }}
       >
       {/* Card: Thoughts */}
       <div
         id="thoughts"
-        className="h-screen w-full shrink-0 overflow-hidden"
-        style={{ scrollSnapAlign: "start", background: "var(--color-bg)" }}
+        className="snap-section w-full shrink-0 overflow-hidden"
+        style={{ background: "var(--color-bg)" }}
       >
         <ThoughtsCard posts={posts} blogContent={blogContent} />
       </div>
 
       {/* Card: About */}
-      <div
-        id="about"
-        className="h-screen w-full shrink-0"
-        style={{ scrollSnapAlign: "start" }}
-      >
+      <div id="about" className="snap-section w-full shrink-0">
         <AboutSection />
       </div>
 
       {/* Card: Home */}
-      <div
-        id="home"
-        className="h-screen w-full shrink-0"
-        style={{ scrollSnapAlign: "start" }}
-      >
+      <div id="home" className="snap-section w-full shrink-0">
         <HalftoneHero />
       </div>
 
       {/* Card: Projects */}
       <div
         id="projects"
-        className="h-screen w-full shrink-0 overflow-hidden"
-        style={{ scrollSnapAlign: "start", scrollSnapStop: "always", background: "var(--color-bg)" }}
+        className="snap-section w-full shrink-0 overflow-hidden"
+        style={{ scrollSnapStop: "always", background: "var(--color-bg)" }}
       >
         <ProjectsCard projects={projects} projectContent={projectContent} />
       </div>
 
       {/* Card: Creative Basement */}
-      <div
-        id="creative"
-        className="h-screen w-full shrink-0"
-        style={{ scrollSnapAlign: "start" }}
-      >
+      <div id="creative" className="snap-section w-full shrink-0">
         <CreativeBasement />
       </div>
     </div>

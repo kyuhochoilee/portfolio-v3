@@ -10,7 +10,7 @@ function getPassword() {
 
 function parseFrontmatter(raw: string) {
   const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
-  if (!match) return { title: "", body: raw, draft: true };
+  if (!match) return { title: "", body: raw, draft: true, image: "" };
 
   const frontmatter = match[1];
   const body = match[2];
@@ -19,15 +19,17 @@ function parseFrontmatter(raw: string) {
   const title = titleMatch ? titleMatch[1] : "";
   const descMatch = frontmatter.match(/description:\s*"?([^"\n]*)"?/);
   const description = descMatch ? descMatch[1] : "";
+  const imageMatch = frontmatter.match(/image:\s*"?([^"\n]*)"?/);
+  const image = imageMatch ? imageMatch[1] : "";
   const draft = /draft:\s*true/.test(frontmatter);
 
-  return { title, description, body: body.trim(), draft };
+  return { title, description, body: body.trim(), draft, image };
 }
 
 export default function EditPostPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const [data, setData] = useState<{ title: string; description: string; body: string; sha: string; draft: boolean } | null>(null);
+  const [data, setData] = useState<{ title: string; description: string; body: string; sha: string; draft: boolean; image: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,8 +39,8 @@ export default function EditPostPage() {
       .then((r) => r.json())
       .then((d) => {
         if (d.content) {
-          const { title, description, body, draft } = parseFrontmatter(d.content);
-          setData({ title, description: description || "", body, sha: d.sha ?? "", draft });
+          const { title, description, body, draft, image } = parseFrontmatter(d.content);
+          setData({ title, description: description || "", body, sha: d.sha ?? "", draft, image: image || "" });
         }
         setLoading(false);
       })
@@ -72,6 +74,7 @@ export default function EditPostPage() {
       initialTitle={data.title}
       initialDescription={data.description}
       initialBody={data.body}
+      initialHeaderImage={data.image}
       slug={slug}
       sha={data.sha}
       initialDraft={data.draft}
