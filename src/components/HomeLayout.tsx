@@ -39,10 +39,19 @@ export default function HomeLayout({
   blogContent?: Record<string, React.ReactNode>;
   projectContent?: Record<string, React.ReactNode>;
 }) {
-  const { scrollerRef: scrollRef } = useScrollContext();
+  const { scrollerRef: scrollRef, openDetails } = useScrollContext();
   const currentSection = useRef("home");
   const isProgrammatic = useRef(false);
   const [ready, setReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const hasOpenDetail = openDetails.length > 0;
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Scroll to a section by ID, optionally with smooth behavior
   const scrollToSection = useCallback((id: string, smooth = false) => {
@@ -96,7 +105,9 @@ export default function HomeLayout({
     const onScroll = () => {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
-        const scrollCenter = scroller.scrollTop + window.innerHeight / 2;
+        // Use scroller.clientHeight instead of window.innerHeight
+        // — stable on mobile where address bar changes viewport size
+        const scrollCenter = scroller.scrollTop + scroller.clientHeight / 2;
 
         let active = "home";
         for (const id of SECTIONS) {
@@ -109,15 +120,6 @@ export default function HomeLayout({
         }
 
         if (active !== currentSection.current && !isProgrammatic.current) {
-          // Reset the new section's inner scroll to top
-          const activeEl = document.getElementById(active);
-          if (activeEl) {
-            activeEl.scrollTop = 0;
-            // Also reset any scrollable children
-            activeEl.querySelectorAll('[class*="overflow-y"]').forEach((child) => {
-              (child as HTMLElement).scrollTop = 0;
-            });
-          }
           currentSection.current = active;
           const url = active === "home" ? "/" : `/#${active}`;
           window.history.pushState({ section: active }, "", url);
@@ -164,8 +166,12 @@ export default function HomeLayout({
         data-snap-container
         className="overflow-y-auto"
         style={{
-          height: "100dvh",
-          scrollSnapType: "y mandatory",
+          height: "100svh",
+          scrollSnapType: isMobile && hasOpenDetail
+            ? "none"
+            : isMobile
+              ? "y proximity"
+              : "y mandatory",
           scrollBehavior: "smooth",
         }}
       >

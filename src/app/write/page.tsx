@@ -2,23 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getAllLocalPosts, type LocalPost } from "@/hooks/useLocalSave";
 
 interface PostEntry {
   slug: string;
-  sha: string;
   title: string;
   date: string;
   draft: boolean;
   description: string;
+  source: "local" | "remote" | "both";
+  syncStatus?: "synced" | "pending" | "conflict";
 }
 
 function getPassword() {
   return sessionStorage.getItem("write-pw") ?? "";
 }
 
-function formatDate(d: string) {
+function formatDate(d: string | number) {
   if (!d) return "";
-  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+  const date = typeof d === "number" ? new Date(d) : new Date(d + "T00:00:00");
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -30,15 +33,60 @@ export default function WritePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/write", {
-      headers: { "x-write-password": getPassword() },
-    })
-      .then((r) => r.json())
-      .then((d) => {
-        setPosts(d.posts ?? []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    async function loadPosts() {
+      // Load from both sources in parallel
+      const [localPosts, remotePosts] = await Promise.all([
+        getAllLocalPosts().catch(() => [] as LocalPost[]),
+        fetch("/api/write", {
+          headers: { "x-write-password": getPassword() },
+        })
+          .then((r) => r.json())
+          .then((d) => d.posts ?? [])
+          .catch(() => []),
+      ]);
+
+      // Merge: local takes priority, remote fills gaps
+      const merged = new Map<string, PostEntry>();
+
+      // Add remote posts first
+      for (const p of remotePosts) {
+        merged.set(p.slug, {
+          slug: p.slug,
+          title: p.title || p.slug,
+          date: p.date || "",
+          draft: p.draft ?? true,
+          description: p.description || "",
+          source: "remote",
+        });
+      }
+
+      // Overlay local posts (they're more up-to-date)
+      for (const p of localPosts) {
+        const existing = merged.get(p.slug);
+        merged.set(p.slug, {
+          slug: p.slug,
+          title: p.title || p.slug,
+          date: p.date || "",
+          draft: p.isDraft,
+          description: p.description || "",
+          source: existing ? "both" : "local",
+          syncStatus: p.syncStatus,
+        });
+      }
+
+      // Sort by date desc
+      const sorted = Array.from(merged.values()).sort((a, b) => {
+        if (!a.date && !b.date) return 0;
+        if (!a.date) return 1;
+        if (!b.date) return -1;
+        return b.date.localeCompare(a.date);
+      });
+
+      setPosts(sorted);
+      setLoading(false);
+    }
+
+    loadPosts();
   }, []);
 
   return (
@@ -51,12 +99,10 @@ export default function WritePage() {
       }}
     >
       <div className="max-w-lg mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-lg text-fg" style={{ letterSpacing: "-0.02em" }}>thoughts</h1>
         </div>
 
-        {/* Post list */}
         {loading ? (
           <p className="text-muted text-sm">loading...</p>
         ) : posts.length === 0 ? (
@@ -85,6 +131,12 @@ export default function WritePage() {
                         >
                           draft
                         </span>
+                      )}
+                      {post.syncStatus === "pending" && (
+                        <span className="text-xs text-muted" style={{ fontSize: "10px" }}>○</span>
+                      )}
+                      {post.source === "local" && (
+                        <span className="text-xs text-muted" style={{ fontSize: "10px" }}>local</span>
                       )}
                     </div>
                     {post.description && (

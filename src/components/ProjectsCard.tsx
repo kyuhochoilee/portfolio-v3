@@ -56,6 +56,7 @@ export default function ProjectsCard({
           paddingBottom: "var(--footer-safe)",
           paddingLeft: isOpen ? "2rem" : "1.5rem",
           paddingRight: isOpen ? "0.75rem" : "1.5rem",
+          overscrollBehavior: "contain",
         }}
       >
         {/* Sticky header */}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, ReactNode } from "react";
 import WriteBottomBar from "@/components/WriteBottomBar";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 
 export default function WriteLayout({ children }: { children: ReactNode }) {
   const [authed, setAuthed] = useState(false);
@@ -47,6 +48,7 @@ export default function WriteLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
+      <ServiceWorkerRegistration />
       {children}
       <WriteBottomBar />
     </>

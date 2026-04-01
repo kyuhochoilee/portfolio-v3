@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAutoSave } from "@/hooks/useAutoSave";
+import { useLocalSave } from "@/hooks/useLocalSave";
 import Markdown from "react-markdown";
 
 function getPassword() {
@@ -110,11 +110,16 @@ ${body}`;
   }, [title, description, blocks, headerImage, date]);
 
   // Auto-save hook
-  const { status: draftStatus, markChanged, saveNow, deletePost } = useAutoSave({
+  const { status: draftStatus, syncStatus, markChanged, saveNow, deletePost } = useLocalSave({
     existingSlug,
     initialSha: sha,
-    buildContent,
+    initialDraft,
     title,
+    description,
+    blocks,
+    headerImage,
+    date,
+    buildContent,
   });
 
   // Mark changes for auto-save
@@ -242,18 +247,31 @@ ${body}`;
           {draftStatus && (
             <span
               style={{
-                color: draftStatus === "failed" || draftStatus === "retrying..."
+                color: draftStatus.includes("fail") || draftStatus.includes("retry")
                   ? "var(--color-orange)"
-                  : "var(--color-muted)",
+                  : draftStatus.includes("offline")
+                    ? "var(--color-purple)"
+                    : "var(--color-muted)",
                 transition: "color 0.2s",
               }}
             >
-              {draftStatus === "saving..." && "saving..."}
-              {draftStatus === "saved" && "✓ saved"}
-              {draftStatus === "failed" && "✗ save failed"}
-              {draftStatus === "retrying..." && "retrying..."}
+              {draftStatus}
             </span>
           )}
+          {/* Sync indicator */}
+          <span
+            className="text-xs"
+            style={{
+              color: syncStatus === "synced" ? "var(--color-muted)"
+                : syncStatus === "offline" ? "var(--color-purple)"
+                : "var(--color-orange)",
+              opacity: 0.6,
+            }}
+          >
+            {syncStatus === "synced" && "●"}
+            {syncStatus === "pending" && "○"}
+            {syncStatus === "offline" && "◌"}
+          </span>
         </div>
 
         {preview ? (

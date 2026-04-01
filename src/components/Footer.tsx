@@ -266,7 +266,7 @@ export default function Footer() {
       rafId = requestAnimationFrame(() => {
         const scroller = scrollerRef.current;
         if (!scroller) return;
-        const scrollCenter = scroller.scrollTop + window.innerHeight / 2;
+        const scrollCenter = scroller.scrollTop + scroller.clientHeight / 2;
 
         // Find which section contains the viewport center
         const ids = ["thoughts", "about", "home", "projects", "creative"] as const;
