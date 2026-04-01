@@ -36,8 +36,10 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#0c0a09" />
       </head>
       <body className="antialiased">
