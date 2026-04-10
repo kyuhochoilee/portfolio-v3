@@ -51,12 +51,11 @@ export default function ProjectsCard({
     >
       {/* Project list / grid — hidden on mobile when project is open */}
       {!(isMobile && isOpen) && <div
-        className="relative overflow-y-auto"
+        className={`relative ${isMobile ? "overflow-hidden" : "overflow-y-auto"}`}
         style={{
           paddingBottom: "var(--footer-safe)",
           paddingLeft: isOpen ? "2rem" : "1.5rem",
           paddingRight: isOpen ? "0.75rem" : "1.5rem",
-          overscrollBehavior: "contain",
         }}
       >
         {/* Sticky header */}

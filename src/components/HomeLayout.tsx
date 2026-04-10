@@ -91,10 +91,12 @@ export default function HomeLayout({
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         scrollToSection(initial, false);
-        // Small delay to ensure scroll has settled
         setTimeout(() => setReady(true), 50);
       });
     });
+
+    // Safety fallback — always reveal after 1s even if scroll fails
+    const safetyTimer = setTimeout(() => setReady(true), 1000);
 
     // Clean up URL to just hash
     const cleanUrl = initial === "home" ? "/" : `/#${initial}`;
@@ -139,6 +141,7 @@ export default function HomeLayout({
     window.addEventListener("popstate", onPopState);
 
     return () => {
+      clearTimeout(safetyTimer);
       scroller.removeEventListener("scroll", onScroll);
       window.removeEventListener("popstate", onPopState);
     };
@@ -167,18 +170,14 @@ export default function HomeLayout({
         className="overflow-y-auto"
         style={{
           height: "100svh",
-          scrollSnapType: isMobile && hasOpenDetail
-            ? "none"
-            : isMobile
-              ? "y proximity"
-              : "y mandatory",
+          scrollSnapType: isMobile && hasOpenDetail ? "none" : "y mandatory",
           scrollBehavior: "smooth",
         }}
       >
       {/* Card: Thoughts */}
       <div
         id="thoughts"
-        className="snap-section w-full shrink-0 overflow-hidden"
+        className="snap-section w-full shrink-0 overflow-clip"
         style={{ background: "var(--color-bg)" }}
       >
         <ThoughtsCard posts={posts} blogContent={blogContent} />
@@ -197,7 +196,7 @@ export default function HomeLayout({
       {/* Card: Projects */}
       <div
         id="projects"
-        className="snap-section w-full shrink-0 overflow-hidden"
+        className="snap-section w-full shrink-0 overflow-clip"
         style={{ scrollSnapStop: "always", background: "var(--color-bg)" }}
       >
         <ProjectsCard projects={projects} projectContent={projectContent} />

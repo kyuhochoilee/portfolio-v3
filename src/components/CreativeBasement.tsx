@@ -79,10 +79,10 @@ export default function CreativeBasement() {
   const rows = splitIntoRows(ITEMS, ROWS);
 
   return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden">
+    <div className="relative w-full h-full flex flex-col overflow-clip">
       <div className="flex-1 flex flex-col gap-2 justify-center py-2">
         {rows.map((row, rowIdx) => (
-          <div key={rowIdx} className="overflow-x-auto overflow-y-hidden creative-row" style={{ height: "28vh" }}>
+          <div key={rowIdx} className="overflow-x-auto overflow-y-hidden creative-row" style={{ height: "28vh", touchAction: "pan-y" }}>
             <div
               className="flex gap-2 px-2 h-full w-max creative-scroll"
               style={{
