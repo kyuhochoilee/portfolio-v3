@@ -212,6 +212,8 @@ export default function HomeLayout({
           height: isMobile ? "100%" : "100svh",
           overflowY: isMobile ? "auto" : undefined,
           scrollSnapAlign: "start",
+          contentVisibility: "auto",
+          containIntrinsicSize: isMobile ? "100vw 100dvh" : "100vw 100svh",
         }}
       >
         <ThoughtsCard posts={posts} blogContent={blogContent} />
@@ -226,6 +228,8 @@ export default function HomeLayout({
           height: isMobile ? "100%" : "100svh",
           overflowY: isMobile ? "auto" : undefined,
           scrollSnapAlign: "start",
+          contentVisibility: "auto",
+          containIntrinsicSize: isMobile ? "100vw 100dvh" : "100vw 100svh",
         }}
       >
         <AboutSection />
@@ -240,6 +244,8 @@ export default function HomeLayout({
           height: isMobile ? "100%" : "100svh",
           overflowY: isMobile ? "auto" : undefined,
           scrollSnapAlign: "start",
+          contentVisibility: "auto",
+          containIntrinsicSize: isMobile ? "100vw 100dvh" : "100vw 100svh",
         }}
       >
         <HalftoneHero />
@@ -255,6 +261,8 @@ export default function HomeLayout({
           height: isMobile ? "100%" : "100svh",
           overflowY: isMobile ? "auto" : undefined,
           scrollSnapAlign: "start",
+          contentVisibility: "auto",
+          containIntrinsicSize: isMobile ? "100vw 100dvh" : "100vw 100svh",
           scrollSnapStop: "always",
         }}
       >
@@ -270,6 +278,8 @@ export default function HomeLayout({
           height: isMobile ? "100%" : "100svh",
           overflowY: isMobile ? "auto" : undefined,
           scrollSnapAlign: "start",
+          contentVisibility: "auto",
+          containIntrinsicSize: isMobile ? "100vw 100dvh" : "100vw 100svh",
         }}
       >
         <CreativeBasement />

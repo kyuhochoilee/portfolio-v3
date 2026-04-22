@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import Image from "next/image";
 
 const ITEMS = [
@@ -46,12 +46,20 @@ function splitIntoRows<T>(items: T[], numRows: number): T[][] {
   return rows;
 }
 
-function ImageCard({ item, onClick }: { item: typeof ITEMS[number]; onClick: () => void }) {
+const ImageCard = memo(function ImageCard({
+  item,
+  globalIdx,
+  onSelect,
+}: {
+  item: typeof ITEMS[number];
+  globalIdx: number;
+  onSelect: (idx: number) => void;
+}) {
   return (
     <button
       className="group cursor-pointer overflow-hidden shrink-0 relative h-full"
       style={{ borderRadius: "var(--radius-sm)" }}
-      onClick={onClick}
+      onClick={() => onSelect(globalIdx)}
     >
       <Image
         src={item.src}
@@ -77,11 +85,13 @@ function ImageCard({ item, onClick }: { item: typeof ITEMS[number]; onClick: () 
       </div>
     </button>
   );
-}
+});
 
 export default function CreativeBasement() {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const rows = splitIntoRows(ITEMS, ROWS);
+  const handleSelect = useCallback((idx: number) => setLightbox(idx), []);
+  const handleClose = useCallback(() => setLightbox(null), []);
 
   return (
     <div className="relative w-full h-full flex flex-col overflow-clip">
@@ -100,7 +110,8 @@ export default function CreativeBasement() {
                   <ImageCard
                     key={`${globalIdx}-${dupIdx}`}
                     item={item}
-                    onClick={() => setLightbox(globalIdx)}
+                    globalIdx={globalIdx}
+                    onSelect={handleSelect}
                   />
                 );
               })}
@@ -113,7 +124,7 @@ export default function CreativeBasement() {
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center cursor-pointer"
           style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }}
-          onClick={() => setLightbox(null)}
+          onClick={handleClose}
         >
           <Image
             src={ITEMS[lightbox].src}
