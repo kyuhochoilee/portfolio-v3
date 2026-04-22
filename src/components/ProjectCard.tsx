@@ -23,7 +23,7 @@ export default function ProjectCard({ project }: { project: ProjectMeta }) {
             loop
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             className="h-full w-full object-cover transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.03]"
           />
         ) : project.featuredImage ? (
@@ -31,8 +31,9 @@ export default function ProjectCard({ project }: { project: ProjectMeta }) {
             src={project.featuredImage}
             alt={project.title}
             fill
+            quality={65}
+            sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-border text-muted text-sm">

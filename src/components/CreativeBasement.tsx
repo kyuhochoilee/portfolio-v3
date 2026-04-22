@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 const ITEMS = [
   { src: "/images/keynotes/after-poster.jpeg", alt: "Keynotes — After Hours" },
@@ -52,12 +53,16 @@ function ImageCard({ item, onClick }: { item: typeof ITEMS[number]; onClick: () 
       style={{ borderRadius: "var(--radius-sm)" }}
       onClick={onClick}
     >
-      <img
+      <Image
         src={item.src}
         alt={item.alt}
-        className="h-full w-auto block group-hover:opacity-80 transition-opacity"
+        width={400}
+        height={560}
+        sizes="(max-width: 768px) 35vw, 240px"
+        quality={55}
         loading="lazy"
         draggable={false}
+        className="h-full w-auto block group-hover:opacity-80 transition-opacity"
       />
       <div
         className="absolute inset-0 flex items-end p-2 opacity-0 group-hover:opacity-100"
@@ -110,11 +115,16 @@ export default function CreativeBasement() {
           style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }}
           onClick={() => setLightbox(null)}
         >
-          <img
+          <Image
             src={ITEMS[lightbox].src}
             alt={ITEMS[lightbox].alt}
-            className="max-w-[90vw] max-h-[85vh] object-contain"
+            width={1600}
+            height={2000}
+            sizes="90vw"
+            quality={85}
+            priority
             draggable={false}
+            className="max-w-[90vw] max-h-[85vh] w-auto h-auto object-contain"
             style={{ animation: "suggestModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)" }}
           />
           <p className="absolute bottom-8 text-white/70 text-xs" style={{ fontFamily: "var(--font-display)" }}>

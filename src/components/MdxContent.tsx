@@ -14,8 +14,9 @@ const components = {
           alt={alt ?? ""}
           width={1200}
           height={800}
-          className="rounded-[var(--radius-md)]"
+          quality={70}
           sizes="(max-width: 768px) 100vw, 42rem"
+          className="rounded-[var(--radius-md)]"
         />
       );
     }

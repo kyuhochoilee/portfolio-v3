@@ -140,7 +140,7 @@ export default function ProjectsCard({
                       {isVideo ? (
                         <video
                           src={project.featuredImage}
-                          autoPlay loop muted playsInline preload="auto"
+                          autoPlay loop muted playsInline preload="metadata"
                           className="h-full w-full object-cover scale-[1.15] transition-transform duration-500 group-hover:scale-[1.18]"
                         />
                       ) : project.featuredImage ? (
@@ -148,8 +148,9 @@ export default function ProjectsCard({
                           src={project.featuredImage}
                           alt={project.title}
                           fill
+                          quality={65}
+                          sizes="(max-width: 768px) 90vw, 33vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                          sizes="(max-width: 768px) 100vw, 33vw"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center bg-border text-muted text-sm">
@@ -194,10 +195,13 @@ export default function ProjectsCard({
                     {/* Header image */}
                     {activeProject?.headerImage && (
                       <div className="relative aspect-[16/10] mb-6 overflow-hidden" style={{ borderRadius: "var(--radius-md)" }}>
-                        <img
+                        <Image
                           src={activeProject.headerImage}
                           alt={activeProject.title}
-                          className="absolute inset-0 w-full h-full object-cover"
+                          fill
+                          quality={75}
+                          sizes="(max-width: 768px) 90vw, 33rem"
+                          className="object-cover"
                         />
                       </div>
                     )}
