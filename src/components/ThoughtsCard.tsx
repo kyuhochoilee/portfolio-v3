@@ -49,7 +49,7 @@ export default function ThoughtsCard({
     >
       {/* Timeline — hidden on mobile when post is open */}
       {!(isMobile && isOpen) && <div
-        className={`relative ${isMobile ? "overflow-hidden" : "overflow-y-auto"}`}
+        className="relative overflow-y-auto"
         style={{
           paddingBottom: "var(--footer-safe)",
           paddingLeft: isOpen ? "2rem" : "1.5rem",

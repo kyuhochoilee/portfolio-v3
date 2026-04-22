@@ -51,7 +51,7 @@ export default function ProjectsCard({
     >
       {/* Project list / grid — hidden on mobile when project is open */}
       {!(isMobile && isOpen) && <div
-        className={`relative ${isMobile ? "overflow-hidden" : "overflow-y-auto"}`}
+        className="relative overflow-y-auto"
         style={{
           paddingBottom: "var(--footer-safe)",
           paddingLeft: isOpen ? "2rem" : "1.5rem",
