@@ -165,7 +165,12 @@ function NavItem({
     }
     const target = document.getElementById(section);
     if (target) {
-      scroller.scrollTo({ top: target.offsetTop, behavior: "smooth" });
+      const horizontal = scroller.dataset.layout === "horizontal";
+      if (horizontal) {
+        scroller.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
+      } else {
+        scroller.scrollTo({ top: target.offsetTop, behavior: "smooth" });
+      }
       const url = section === "home" ? "/" : `/#${section}`;
       window.history.pushState({ section }, "", url);
     }
@@ -266,18 +271,20 @@ export default function Footer() {
       rafId = requestAnimationFrame(() => {
         const scroller = scrollerRef.current;
         if (!scroller) return;
-        const scrollCenter = scroller.scrollTop + scroller.clientHeight / 2;
+        const horizontal = scroller.dataset.layout === "horizontal";
+        const scrollCenter = horizontal
+          ? scroller.scrollLeft + scroller.clientWidth / 2
+          : scroller.scrollTop + scroller.clientHeight / 2;
 
         // Find which section contains the viewport center
         const ids = ["thoughts", "about", "home", "projects", "creative"] as const;
-        // These are the DOM sections on the home page
         let next = SECTION_TO_NAV.home;
         for (const id of ids) {
           const el = document.getElementById(id);
           if (!el) continue;
-          const top = el.offsetTop;
-          const bottom = top + el.offsetHeight;
-          if (scrollCenter >= top && scrollCenter < bottom) {
+          const start = horizontal ? el.offsetLeft : el.offsetTop;
+          const size = horizontal ? el.offsetWidth : el.offsetHeight;
+          if (scrollCenter >= start && scrollCenter < start + size) {
             next = SECTION_TO_NAV[id];
             break;
           }

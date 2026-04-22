@@ -53,22 +53,28 @@ export default function HomeLayout({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Scroll to a section by ID, optionally with smooth behavior
+  // Scroll to a section by ID, optionally with smooth behavior.
+  // On mobile, scrolls horizontally (sections laid out in a row).
+  // On desktop, scrolls vertically (sections stacked as snap pages).
   const scrollToSection = useCallback((id: string, smooth = false) => {
     const scroller = scrollRef.current;
     const el = document.getElementById(id);
     if (!scroller || !el) return;
 
-    // Reset inner scroll to top
-    if (el.scrollTop > 0) {
-      el.scrollTop = 0;
-    }
+    const horizontal = scroller.dataset.layout === "horizontal";
+
+    // Reset inner scroll of this section to top
+    if (el.scrollTop > 0) el.scrollTop = 0;
 
     isProgrammatic.current = true;
     if (!smooth) {
       scroller.style.scrollBehavior = "auto";
     }
-    scroller.scrollTop = el.offsetTop;
+    if (horizontal) {
+      scroller.scrollLeft = el.offsetLeft;
+    } else {
+      scroller.scrollTop = el.offsetTop;
+    }
     if (!smooth) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -103,19 +109,23 @@ export default function HomeLayout({
     window.history.replaceState({ section: initial }, "", cleanUrl);
 
     // Track scroll position → update URL + history
+    // Axis depends on layout: horizontal on mobile, vertical on desktop
     let rafId = 0;
     const onScroll = () => {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
-        // Use scroller.clientHeight instead of window.innerHeight
-        // — stable on mobile where address bar changes viewport size
-        const scrollCenter = scroller.scrollTop + scroller.clientHeight / 2;
+        const horizontal = scroller.dataset.layout === "horizontal";
+        const scrollCenter = horizontal
+          ? scroller.scrollLeft + scroller.clientWidth / 2
+          : scroller.scrollTop + scroller.clientHeight / 2;
 
         let active = "home";
         for (const id of SECTIONS) {
           const el = document.getElementById(id);
           if (!el) continue;
-          if (scrollCenter >= el.offsetTop && scrollCenter < el.offsetTop + el.offsetHeight) {
+          const start = horizontal ? el.offsetLeft : el.offsetTop;
+          const size = horizontal ? el.offsetWidth : el.offsetHeight;
+          if (scrollCenter >= start && scrollCenter < start + size) {
             active = id;
             break;
           }
@@ -145,7 +155,10 @@ export default function HomeLayout({
       scroller.removeEventListener("scroll", onScroll);
       window.removeEventListener("popstate", onPopState);
     };
-  }, [scrollToSection]);
+    // Re-run when isMobile flips so the layout-axis switch also re-anchors the
+    // scroll position to the current section (offsetLeft vs. offsetTop differ
+    // between flex-row mobile layout and block desktop layout).
+  }, [scrollToSection, isMobile]);
 
   return (
     <>
@@ -167,43 +180,98 @@ export default function HomeLayout({
       <div
         ref={scrollRef}
         data-snap-container
-        className="overflow-y-auto"
+        data-layout={isMobile ? "horizontal" : "vertical"}
+        className={
+          isMobile
+            ? hasOpenDetail
+              ? "overflow-hidden"
+              : "overflow-x-auto overflow-y-hidden"
+            : "overflow-y-auto"
+        }
         style={{
-          height: "100svh",
-          scrollSnapType: isMobile && hasOpenDetail ? "none" : "y mandatory",
+          width: isMobile ? "100vw" : undefined,
+          height: isMobile ? "100dvh" : "100svh",
+          display: isMobile ? "flex" : undefined,
+          flexDirection: isMobile ? "row" : undefined,
+          scrollSnapType: hasOpenDetail
+            ? "none"
+            : isMobile
+              ? "x mandatory"
+              : "y mandatory",
           scrollBehavior: "smooth",
+          overscrollBehavior: "contain",
         }}
       >
       {/* Card: Thoughts */}
       <div
         id="thoughts"
-        className="snap-section w-full shrink-0 overflow-clip"
-        style={{ background: "var(--color-bg)" }}
+        className="snap-section shrink-0 overflow-clip"
+        style={{
+          background: "var(--color-bg)",
+          width: isMobile ? "100vw" : "100%",
+          height: isMobile ? "100%" : "100svh",
+          overflowY: isMobile ? "auto" : undefined,
+          scrollSnapAlign: "start",
+        }}
       >
         <ThoughtsCard posts={posts} blogContent={blogContent} />
       </div>
 
       {/* Card: About */}
-      <div id="about" className="snap-section w-full shrink-0">
+      <div
+        id="about"
+        className="snap-section shrink-0"
+        style={{
+          width: isMobile ? "100vw" : "100%",
+          height: isMobile ? "100%" : "100svh",
+          overflowY: isMobile ? "auto" : undefined,
+          scrollSnapAlign: "start",
+        }}
+      >
         <AboutSection />
       </div>
 
       {/* Card: Home */}
-      <div id="home" className="snap-section w-full shrink-0">
+      <div
+        id="home"
+        className="snap-section shrink-0"
+        style={{
+          width: isMobile ? "100vw" : "100%",
+          height: isMobile ? "100%" : "100svh",
+          overflowY: isMobile ? "auto" : undefined,
+          scrollSnapAlign: "start",
+        }}
+      >
         <HalftoneHero />
       </div>
 
       {/* Card: Projects */}
       <div
         id="projects"
-        className="snap-section w-full shrink-0 overflow-clip"
-        style={{ scrollSnapStop: "always", background: "var(--color-bg)" }}
+        className="snap-section shrink-0 overflow-clip"
+        style={{
+          background: "var(--color-bg)",
+          width: isMobile ? "100vw" : "100%",
+          height: isMobile ? "100%" : "100svh",
+          overflowY: isMobile ? "auto" : undefined,
+          scrollSnapAlign: "start",
+          scrollSnapStop: "always",
+        }}
       >
         <ProjectsCard projects={projects} projectContent={projectContent} />
       </div>
 
       {/* Card: Creative Basement */}
-      <div id="creative" className="snap-section w-full shrink-0">
+      <div
+        id="creative"
+        className="snap-section shrink-0"
+        style={{
+          width: isMobile ? "100vw" : "100%",
+          height: isMobile ? "100%" : "100svh",
+          overflowY: isMobile ? "auto" : undefined,
+          scrollSnapAlign: "start",
+        }}
+      >
         <CreativeBasement />
       </div>
     </div>
