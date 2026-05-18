@@ -7,10 +7,12 @@ import {
   getProject,
 } from "@/lib/content";
 import type { ProjectMeta } from "@/lib/content";
+import { isThoughtsUnlocked } from "@/lib/thoughtsAuth";
 
-export default function Home() {
+export default async function Home() {
   const projects: ProjectMeta[] = getProjects();
   const posts = getBlogPosts();
+  const thoughtsUnlocked = await isThoughtsUnlocked();
 
   // Sort projects into preferred display order
   const PROJECT_ORDER = ["clique", "speak", "nothing", "keynotes", "zine", "paradigm", "thoughts", "isteam"];
@@ -20,12 +22,16 @@ export default function Home() {
     return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
   });
 
-  // Pre-render MDX blog content for inline expansion
+  // Pre-render MDX blog content for inline expansion. Only emit content when
+  // the thoughts section is unlocked — otherwise the timeline shows and the
+  // password prompt takes the place of the article body.
   const blogContent: Record<string, React.ReactNode> = {};
-  for (const post of posts) {
-    blogContent[post.slug] = (
-      <BlogPostContent key={post.slug} slug={post.slug} />
-    );
+  if (thoughtsUnlocked) {
+    for (const post of posts) {
+      blogContent[post.slug] = (
+        <BlogPostContent key={post.slug} slug={post.slug} />
+      );
+    }
   }
 
   // Pre-render project content
@@ -40,6 +46,12 @@ export default function Home() {
   }
 
   return (
-    <HomeLayout projects={projects} posts={posts} blogContent={blogContent} projectContent={projectContent} />
+    <HomeLayout
+      projects={projects}
+      posts={posts}
+      blogContent={blogContent}
+      projectContent={projectContent}
+      thoughtsUnlocked={thoughtsUnlocked}
+    />
   );
 }

@@ -10,7 +10,7 @@ export default function WriteLayout({ children }: { children: ReactNode }) {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem("write-pw");
+    const saved = localStorage.getItem("write-pw");
     if (saved) {
       setAuthed(true);
     }
@@ -19,7 +19,7 @@ export default function WriteLayout({ children }: { children: ReactNode }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sessionStorage.setItem("write-pw", input);
+    localStorage.setItem("write-pw", input);
     setAuthed(true);
   };
 

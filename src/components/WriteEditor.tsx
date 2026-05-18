@@ -6,7 +6,7 @@ import { useLocalSave } from "@/hooks/useLocalSave";
 import Markdown from "react-markdown";
 
 function getPassword() {
-  return sessionStorage.getItem("write-pw") ?? "";
+  return localStorage.getItem("write-pw") ?? "";
 }
 
 interface Block {

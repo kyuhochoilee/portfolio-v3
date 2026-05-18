@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 function getPassword() {
-  return sessionStorage.getItem("write-pw") ?? "";
+  return localStorage.getItem("write-pw") ?? "";
 }
 
 function slugify(text: string) {

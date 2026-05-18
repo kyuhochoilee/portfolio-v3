@@ -196,27 +196,30 @@ body {
   color: var(--color-orange);
 }
 
-@keyframes scrollLoop0 {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-@keyframes scrollLoop1 {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0); }
-}
-@keyframes scrollLoop2 {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.creative-scroll:hover,
-.creative-row:active .creative-scroll {
-  animation-play-state: paused !important;
-}
-
-/* Allow touch scrolling on the row */
+/* Allow native momentum scrolling on the row */
 .creative-row {
   -webkit-overflow-scrolling: touch;
+}
+
+/* Shimmer skeleton for slow-loading images */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.img-skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-border) 35%, transparent) 25%,
+    color-mix(in srgb, var(--color-border) 55%, transparent) 50%,
+    color-mix(in srgb, var(--color-border) 35%, transparent) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img-skeleton { animation: none; }
 }
 
 .snap-section {

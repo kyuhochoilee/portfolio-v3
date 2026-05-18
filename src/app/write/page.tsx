@@ -15,7 +15,7 @@ interface PostEntry {
 }
 
 function getPassword() {
-  return sessionStorage.getItem("write-pw") ?? "";
+  return localStorage.getItem("write-pw") ?? "";
 }
 
 function formatDate(d: string | number) {

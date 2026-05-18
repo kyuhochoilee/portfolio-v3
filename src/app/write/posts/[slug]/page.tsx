@@ -6,7 +6,7 @@ import WriteEditor from "@/components/WriteEditor";
 import { idbGet } from "@/hooks/useLocalSave";
 
 function getPassword() {
-  return sessionStorage.getItem("write-pw") ?? "";
+  return localStorage.getItem("write-pw") ?? "";
 }
 
 function parseFrontmatter(raw: string) {

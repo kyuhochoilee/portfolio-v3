@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import BlogSection from "@/components/BlogSection";
 import { useScrollContext } from "@/context/ScrollContext";
 import type { PostMeta } from "@/lib/content";
@@ -8,14 +9,20 @@ import type { PostMeta } from "@/lib/content";
 export default function ThoughtsCard({
   posts,
   blogContent,
+  unlocked = true,
 }: {
   posts: PostMeta[];
   blogContent: Record<string, React.ReactNode>;
+  unlocked?: boolean;
 }) {
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const { registerDetailBack, unregisterDetailBack } = useScrollContext();
   const contentRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const [password, setPassword] = useState("");
+  const [unlockError, setUnlockError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const isOpen = !!activeSlug;
 
   useEffect(() => {
@@ -37,6 +44,30 @@ export default function ThoughtsCard({
     }
     return () => unregisterDetailBack("thoughts");
   }, [isMobile, isOpen, registerDetailBack, unregisterDetailBack]);
+
+  async function handleUnlock(e: React.FormEvent) {
+    e.preventDefault();
+    if (submitting || !password) return;
+    setSubmitting(true);
+    setUnlockError(false);
+    try {
+      const res = await fetch("/api/thoughts/unlock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        setPassword("");
+        router.refresh();
+      } else {
+        setUnlockError(true);
+      }
+    } catch {
+      setUnlockError(true);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div
@@ -167,10 +198,55 @@ export default function ThoughtsCard({
                 </div>
               </div>
 
-              {/* Post body */}
+              {/* Post body — locked thoughts show a password prompt instead */}
               <div className="flex justify-center" style={{ paddingLeft: isMobile ? 0 : "1.5rem", paddingRight: isMobile ? 0 : "1.5rem" }}>
                 <div style={{ width: isMobile ? "100%" : "33rem", maxWidth: "100%" }}>
-                  {activeSlug && blogContent[activeSlug]}
+                  {unlocked ? (
+                    activeSlug && blogContent[activeSlug]
+                  ) : (
+                    <form
+                      onSubmit={handleUnlock}
+                      className="w-full flex flex-col items-center gap-3 py-8"
+                    >
+                      <p className="text-muted text-sm text-center">
+                        this thought is private. enter the password to read it.
+                      </p>
+                      <input
+                        type="password"
+                        autoFocus
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          if (unlockError) setUnlockError(false);
+                        }}
+                        placeholder="password"
+                        className="w-full max-w-xs text-sm px-3 py-2 outline-none"
+                        style={{
+                          background: "transparent",
+                          border: "1px solid var(--color-border)",
+                          borderRadius: "var(--radius-sm)",
+                          color: "var(--color-fg)",
+                          fontFamily: "var(--font-display)",
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        disabled={!password || submitting}
+                        className="text-sm px-4 py-2 transition-opacity disabled:opacity-50"
+                        style={{
+                          color: "var(--color-orange)",
+                          fontFamily: "var(--font-display)",
+                        }}
+                      >
+                        {submitting ? "unlocking…" : "unlock"}
+                      </button>
+                      {unlockError && (
+                        <p className="text-xs" style={{ color: "var(--color-orange)" }}>
+                          wrong password
+                        </p>
+                      )}
+                    </form>
+                  )}
                 </div>
               </div>
             </div>

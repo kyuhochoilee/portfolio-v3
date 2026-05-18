@@ -14,7 +14,7 @@ import {
 // ── Helpers ────────────────────────────────────────────────────────
 
 export function getPassword(): string {
-  return sessionStorage.getItem("write-pw") ?? "";
+  return localStorage.getItem("write-pw") ?? "";
 }
 
 function newId(): string {

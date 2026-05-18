@@ -63,7 +63,7 @@ async function idbDelete(slug: string): Promise<void> {
 }
 
 function getPassword() {
-  return sessionStorage.getItem("write-pw") ?? "";
+  return localStorage.getItem("write-pw") ?? "";
 }
 
 function slugify(text: string) {

@@ -5,6 +5,28 @@ import Image from "next/image";
 import { useScrollContext } from "@/context/ScrollContext";
 import type { ProjectMeta } from "@/lib/content";
 
+// Fill-mode Next/Image with shimmer skeleton while loading
+function ShimmerFillImage({ src, alt, quality, sizes, className }: {
+  src: string; alt: string; quality?: number; sizes: string; className?: string;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <>
+      {!loaded && <div className="img-skeleton absolute inset-0" aria-hidden="true" />}
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        quality={quality}
+        sizes={sizes}
+        onLoad={() => setLoaded(true)}
+        className={className}
+        style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.25s ease" }}
+      />
+    </>
+  );
+}
+
 export default function ProjectsCard({
   projects,
   projectContent,
@@ -144,10 +166,9 @@ export default function ProjectsCard({
                           className="h-full w-full object-cover scale-[1.15] transition-transform duration-500 group-hover:scale-[1.18]"
                         />
                       ) : project.featuredImage ? (
-                        <Image
+                        <ShimmerFillImage
                           src={project.featuredImage}
                           alt={project.title}
-                          fill
                           quality={65}
                           sizes="(max-width: 768px) 90vw, 33vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
@@ -195,10 +216,9 @@ export default function ProjectsCard({
                     {/* Header image */}
                     {activeProject?.headerImage && (
                       <div className="relative aspect-[16/10] mb-6 overflow-hidden" style={{ borderRadius: "var(--radius-md)" }}>
-                        <Image
+                        <ShimmerFillImage
                           src={activeProject.headerImage}
                           alt={activeProject.title}
-                          fill
                           quality={75}
                           sizes="(max-width: 768px) 90vw, 33rem"
                           className="object-cover"

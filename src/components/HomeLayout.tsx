@@ -33,11 +33,13 @@ export default function HomeLayout({
   posts = [],
   blogContent = {},
   projectContent = {},
+  thoughtsUnlocked = true,
 }: {
   projects: ProjectMeta[];
   posts?: PostMeta[];
   blogContent?: Record<string, React.ReactNode>;
   projectContent?: Record<string, React.ReactNode>;
+  thoughtsUnlocked?: boolean;
 }) {
   const { scrollerRef: scrollRef, openDetails } = useScrollContext();
   const currentSection = useRef("home");
@@ -183,23 +185,29 @@ export default function HomeLayout({
         data-layout={isMobile ? "horizontal" : "vertical"}
         className={
           isMobile
-            ? hasOpenDetail
+            ? "overflow-x-auto overflow-y-hidden"
+            : hasOpenDetail
               ? "overflow-hidden"
-              : "overflow-x-auto overflow-y-hidden"
-            : "overflow-y-auto"
+              : "overflow-y-auto"
         }
         style={{
           width: isMobile ? "100vw" : undefined,
           height: isMobile ? "100dvh" : "100svh",
           display: isMobile ? "flex" : undefined,
           flexDirection: isMobile ? "row" : undefined,
-          scrollSnapType: hasOpenDetail
-            ? "none"
-            : isMobile
-              ? "x mandatory"
+          // On mobile, horizontal swipes between sections must always work
+          // even when an article is open — article body scrolls vertically
+          // and doesn't conflict with horizontal snap.
+          scrollSnapType: isMobile
+            ? "x mandatory"
+            : hasOpenDetail
+              ? "none"
               : "y mandatory",
           scrollBehavior: "smooth",
           overscrollBehavior: "contain",
+          // Bias touch routing: horizontal swipes pan the main scroller,
+          // vertical swipes get delegated to the inner article scroll.
+          touchAction: isMobile ? "pan-x pan-y" : undefined,
         }}
       >
       {/* Card: Thoughts */}
@@ -214,7 +222,7 @@ export default function HomeLayout({
           scrollSnapAlign: "start",
         }}
       >
-        <ThoughtsCard posts={posts} blogContent={blogContent} />
+        <ThoughtsCard posts={posts} blogContent={blogContent} unlocked={thoughtsUnlocked} />
       </div>
 
       {/* Card: About */}

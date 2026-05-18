@@ -5,6 +5,8 @@ import AsciiHeader from "@/components/AsciiHeader";
 import Footer from "@/components/Footer";
 import AsciiCursor from "@/components/AsciiCursor";
 import { ScrollProvider } from "@/context/ScrollContext";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -49,6 +51,8 @@ export default function RootLayout({
           <main>{children}</main>
           <Footer />
         </ScrollProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

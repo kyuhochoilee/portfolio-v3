@@ -61,14 +61,6 @@ function IconPalette() {
   );
 }
 
-function IconBack() {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="shrink-0">
-      <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function IconProfile() {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="shrink-0">
@@ -78,12 +70,14 @@ function IconProfile() {
 }
 
 function NavItem({
-  section, icon: Icon, label, index, isOpen, onHover, onLeave, href, scrollerRef, detailBacksRef,
+  section, icon: Icon, label, index, isOpen, onHover, onLeave, href, scrollerRef, detailBacksRef, isCurrentSection, onActivate,
 }: {
   section: string; icon: React.FC; label: string; index: number;
   isOpen: boolean; onHover: () => void; onLeave: () => void; href?: string;
   scrollerRef: RefObject<HTMLDivElement | null>;
   detailBacksRef: React.MutableRefObject<Record<string, (() => void) | undefined>>;
+  isCurrentSection: boolean;
+  onActivate: (idx: number) => void;
 }) {
   const textRef = useRef<HTMLSpanElement>(null);
   const pillRef = useRef<HTMLSpanElement>(null);
@@ -152,8 +146,9 @@ function NavItem({
       return;
     }
 
-    // If clicking a section while its detail is open, collapse it
-    if (detailBacksRef.current[section]) {
+    // Only collapse the detail if we're *already* on this section — otherwise
+    // the user is trying to navigate here, not toggle the open article.
+    if (isCurrentSection && detailBacksRef.current[section]) {
       detailBacksRef.current[section]!();
       return;
     }
@@ -165,6 +160,10 @@ function NavItem({
     }
     const target = document.getElementById(section);
     if (target) {
+      // Update highlight immediately on tap — don't wait for the scroll loop
+      // to notice (rAF can be throttled, scroll events don't always fire on
+      // scroll-snap containers on iOS).
+      onActivate(index);
       const horizontal = scroller.dataset.layout === "horizontal";
       if (horizontal) {
         scroller.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
@@ -174,7 +173,7 @@ function NavItem({
       const url = section === "home" ? "/" : `/#${section}`;
       window.history.pushState({ section }, "", url);
     }
-  }, [section, href, scrollerRef]);
+  }, [section, href, scrollerRef, detailBacksRef, isCurrentSection, onActivate, index]);
 
   return (
     <button
@@ -238,14 +237,14 @@ const NAV_ITEMS = [
 ];
 
 export default function Footer() {
-  const { scrollerRef, detailBacksRef, openDetails } = useScrollContext();
+  const { scrollerRef, detailBacksRef, currentSection, setCurrentSection } = useScrollContext();
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
     setHidden(window.location.pathname.startsWith("/write"));
   }, []);
 
-  const [activeNav, setActiveNav] = useState(SECTION_TO_NAV.home);
+  const activeNav = SECTION_TO_NAV[currentSection] ?? SECTION_TO_NAV.home;
   const navRef = useRef<HTMLElement>(null);
   const [hoveredNav, setHoveredNav] = useState<number | null>(null);
   const hoverLeaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -262,57 +261,11 @@ export default function Footer() {
   // Hover takes priority — only one label open at a time
   const openNav = hoveredNav !== null ? hoveredNav : activeNav;
 
-  const lastNavRef = useRef(0);
-
-  useEffect(() => {
-    let rafId = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const scroller = scrollerRef.current;
-        if (!scroller) return;
-        const horizontal = scroller.dataset.layout === "horizontal";
-        const scrollCenter = horizontal
-          ? scroller.scrollLeft + scroller.clientWidth / 2
-          : scroller.scrollTop + scroller.clientHeight / 2;
-
-        // Find which section contains the viewport center
-        const ids = ["thoughts", "about", "home", "projects", "creative"] as const;
-        let next = SECTION_TO_NAV.home;
-        for (const id of ids) {
-          const el = document.getElementById(id);
-          if (!el) continue;
-          const start = horizontal ? el.offsetLeft : el.offsetTop;
-          const size = horizontal ? el.offsetWidth : el.offsetHeight;
-          if (scrollCenter >= start && scrollCenter < start + size) {
-            next = SECTION_TO_NAV[id];
-            break;
-          }
-        }
-        if (next !== lastNavRef.current) {
-          lastNavRef.current = next;
-          setActiveNav(next);
-        }
-      });
-    };
-
-    const tryAttach = () => {
-      const scroller = scrollerRef.current;
-      if (scroller) {
-        scroller.addEventListener("scroll", onScroll, { passive: true });
-        onScroll();
-      }
-    };
-
-    tryAttach();
-    const timer = setTimeout(tryAttach, 300);
-    return () => {
-      clearTimeout(timer);
-      cancelAnimationFrame(rafId);
-      const scroller = scrollerRef.current;
-      if (scroller) scroller.removeEventListener("scroll", onScroll);
-    };
-  }, [scrollerRef]);
+  // Tap → immediately reflect in highlight (don't wait for the rAF in
+  // ScrollContext to pick it up; useful on iOS where scroll events lag).
+  const setActiveNav = useCallback((idx: number) => {
+    setCurrentSection(NAV_ITEMS[idx].section);
+  }, [setCurrentSection]);
 
   if (hidden) return null;
 
@@ -364,38 +317,14 @@ export default function Footer() {
           boxShadow: "0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)",
         }}
       >
-        {/* Back button — pops into the pill on mobile when current section has an open detail */}
-        {(() => {
-          const currentSection = NAV_ITEMS[activeNav]?.section;
-          const showBack = currentSection && openDetails.includes(currentSection);
-          return showBack ? (
-            <>
-              <button
-                onClick={() => detailBacksRef.current[currentSection]?.()}
-                className="relative flex md:hidden items-center text-muted hover:text-fg cursor-pointer"
-                style={{
-                  height: `${size + 16}px`,
-                  opacity: 0,
-                  ["--nav-spread" as string]: "-20px",
-                  transform: "translateX(var(--nav-spread)) scale(1.3)",
-                  animation: "navPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
-                }}
-                aria-label="Back"
-              >
-                <span className="relative flex items-center" style={{ padding: "0 0.5rem" }}>
-                  <IconBack />
-                </span>
-              </button>
-              <div className="md:hidden w-px self-stretch opacity-20" style={{ background: "var(--color-border)" }} />
-            </>
-          ) : null;
-        })()}
         {NAV_ITEMS.map((item, i) => (
           <NavItem
             key={item.section}
             {...item}
             index={i}
             isOpen={openNav === i}
+            isCurrentSection={i === activeNav}
+            onActivate={setActiveNav}
             onHover={() => handleNavHover(i)}
             onLeave={handleNavLeave}
             scrollerRef={scrollerRef}
