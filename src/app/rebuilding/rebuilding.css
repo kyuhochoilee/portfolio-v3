@@ -167,13 +167,58 @@ body:has(.rb-wrap) {
 
 /* weight chart */
 .rb-weight-wrap { margin-bottom: 48px; }
-.rb-weight { width: 100%; height: 140px; display: block; }
-.rb-weight-axis { font-size: 9px; fill: var(--rb-ink-dimmer); font-family: var(--font-mono, monospace); }
+.rb-weight-frame {
+  position: relative;
+  height: 140px;
+  padding-left: 32px;
+}
+.rb-weight-inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+.rb-weight {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.rb-weight-y {
+  position: absolute;
+  left: 0;
+  width: 28px;
+  text-align: right;
+  font-size: 9px;
+  color: var(--rb-ink-dimmer);
+  font-family: var(--font-mono, monospace);
+  transform: translateY(-50%);
+  pointer-events: none;
+  line-height: 1;
+}
+.rb-weight-goal-label {
+  position: absolute;
+  left: 0;
+  font-size: 9px;
+  color: var(--rb-ink-dim);
+  font-family: var(--font-mono, monospace);
+  transform: translateY(calc(-100% - 3px));
+  pointer-events: none;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+.rb-weight-pt {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rb-ink);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
 .rb-weight-grid { stroke: var(--rb-rule); stroke-width: 1; }
 .rb-weight-goal { stroke: var(--rb-ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.4; }
 .rb-weight-line { fill: none; stroke: var(--rb-ink); stroke-width: 1.5; }
 .rb-weight-projection { fill: none; stroke: var(--rb-ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.25; }
-.rb-weight-pt { fill: var(--rb-ink); }
 
 /* day page */
 .rb-day-hero {
