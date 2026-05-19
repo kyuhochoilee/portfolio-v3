@@ -5,6 +5,8 @@ import PasswordGate from "@/components/rebuilding/PasswordGate";
 import DayBlocks from "@/components/rebuilding/DayBlocks";
 import "../rebuilding.css";
 
+export const revalidate = 60;
+
 export const metadata = {
   title: "rules — rebuilding in 50",
 };

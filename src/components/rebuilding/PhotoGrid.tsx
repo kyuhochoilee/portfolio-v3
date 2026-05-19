@@ -23,7 +23,6 @@ export default function PhotoGrid({ days, total }: Props) {
             key={dayNum}
             href={`/rebuilding/${pad}`}
             className={`rb-photo ${photo ? "rb-photo-has" : ""}`}
-            prefetch={false}
           >
             {photo && (
               <Image

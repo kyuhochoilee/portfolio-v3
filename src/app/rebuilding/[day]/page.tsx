@@ -9,6 +9,14 @@ interface PageProps {
   params: Promise<{ day: string }>;
 }
 
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  return Array.from({ length: TOTAL_DAYS }, (_, i) => ({
+    day: String(i + 1).padStart(2, "0"),
+  }));
+}
+
 export async function generateMetadata({ params }: PageProps) {
   const { day } = await params;
   const n = parseInt(day, 10);
