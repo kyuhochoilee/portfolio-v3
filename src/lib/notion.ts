@@ -97,7 +97,7 @@ async function _getAllDays(): Promise<Day[]> {
 }
 
 export const getAllDays = unstable_cache(_getAllDays, ["rebuilding-days"], {
-  revalidate: 300,
+  revalidate: 60,
   tags: ["rebuilding"],
 });
 
@@ -122,7 +122,7 @@ async function _fetchBlocks(blockId: string): Promise<any[]> {
 }
 
 export const getDayBlocks = unstable_cache(_fetchBlocks, ["rebuilding-blocks"], {
-  revalidate: 300,
+  revalidate: 60,
   tags: ["rebuilding"],
 });
 
@@ -155,7 +155,7 @@ async function _getRulesBlocks(): Promise<any[]> {
 }
 
 export const getRulesBlocks = unstable_cache(_getRulesBlocks, ["rebuilding-rules"], {
-  revalidate: 300,
+  revalidate: 60,
   tags: ["rebuilding"],
 });
 

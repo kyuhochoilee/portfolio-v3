@@ -328,6 +328,43 @@ body:has(.rb-wrap) {
 }
 .rb-bullet-mark { color: var(--rb-ink-dim); }
 
+.rb-block-code {
+  background: var(--rb-cell-future);
+  border-radius: 4px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+.rb-block-callout {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 4px;
+  background: var(--rb-cell-future);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 8px 0;
+}
+.rb-callout-icon { flex-shrink: 0; }
+.rb-block-bookmark {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--rb-ink-dim);
+  text-decoration: underline;
+  padding: 6px 0;
+  word-break: break-all;
+}
+.rb-block-bookmark:hover { color: var(--rb-ink); }
+.rb-block-video {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 4px;
+  display: block;
+  margin: 8px 0;
+}
+
 .rb-day-nav-top {
   display: flex;
   align-items: center;

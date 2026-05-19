@@ -62,17 +62,16 @@ function Block({ block }: { block: any }) {
 
   if (t === "toggle") {
     const title = richText(data?.rich_text);
+    const hasChildren = block.children && block.children.length > 0;
     return (
       <div className="rb-block">
         <div className="rb-block-head">{title}</div>
-        {block.children && block.children.length > 0 ? (
+        {hasChildren && (
           <div className="rb-block-body">
             {block.children.map((c: any) => (
               <Block key={c.id} block={c} />
             ))}
           </div>
-        ) : (
-          <p className="rb-block-empty">empty</p>
         )}
       </div>
     );
@@ -84,6 +83,49 @@ function Block({ block }: { block: any }) {
 
   if (t === "quote") {
     return <blockquote className="rb-block-quote">{richText(data?.rich_text)}</blockquote>;
+  }
+
+  if (t === "code") {
+    const text = richText(data?.rich_text);
+    return (
+      <pre className="rb-block-code">
+        <code>{text}</code>
+      </pre>
+    );
+  }
+
+  if (t === "callout") {
+    const emoji = data?.icon?.emoji;
+    return (
+      <div className="rb-block-callout">
+        {emoji && <span className="rb-callout-icon">{emoji}</span>}
+        <span>{richText(data?.rich_text)}</span>
+      </div>
+    );
+  }
+
+  if (t === "bookmark" || t === "embed" || t === "link_preview") {
+    const url = data?.url;
+    if (!url) return null;
+    return (
+      <a className="rb-block-bookmark" href={url} target="_blank" rel="noopener noreferrer">
+        {url}
+      </a>
+    );
+  }
+
+  if (t === "video") {
+    const url = data?.file?.url || data?.external?.url;
+    if (!url) return null;
+    return (
+      <video className="rb-block-video" src={url} controls preload="metadata" />
+    );
+  }
+
+  if (t === "link_to_page" || t === "child_page") {
+    const title = data?.title || richText(data?.rich_text);
+    if (!title) return null;
+    return <div className="rb-block-p">→ {title}</div>;
   }
 
   return null;
