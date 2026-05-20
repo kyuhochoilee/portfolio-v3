@@ -77,10 +77,20 @@ body:has(.rb-wrap) {
   /* lift out of the page crossfade so it stays solid during nav */
   view-transition-name: rb-bottombar;
 }
-/* no fade for the bar — snap its active state instantly */
-::view-transition-old(rb-bottombar),
+/* keep the bar perfectly static during nav — instant snap, no crossfade.
+   plus-lighter (the UA default blend for paired snapshots) is what
+   washed it out to gray; force normal blend + hide the old snapshot. */
+::view-transition-group(rb-bottombar) { animation: none; }
+::view-transition-image-pair(rb-bottombar) { isolation: auto; }
+::view-transition-old(rb-bottombar) {
+  animation: none;
+  opacity: 0;
+  mix-blend-mode: normal;
+}
 ::view-transition-new(rb-bottombar) {
   animation: none;
+  opacity: 1;
+  mix-blend-mode: normal;
 }
 .rb-bb-item {
   display: flex;
