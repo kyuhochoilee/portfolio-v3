@@ -154,9 +154,7 @@ export default function RebuildingApp({ runs, initialRun }: Props) {
     <>
       <motion.div
         className="rb-stage"
-        animate={
-          reduce ? undefined : { scale: sheetOpen ? 0.94 : 1, borderRadius: sheetOpen ? 16 : 0 }
-        }
+        animate={reduce ? undefined : { scale: sheetOpen ? 0.94 : 1 }}
         transition={STAGE_SPRING}
         inert={sheetOpen}
       >

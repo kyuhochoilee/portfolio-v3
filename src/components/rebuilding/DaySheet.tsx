@@ -7,7 +7,6 @@ import {
   useTransform,
   useReducedMotion,
   animate,
-  type PanInfo,
 } from "framer-motion";
 import type { Day, Schema, RunKey } from "@/lib/notion";
 import { TOTAL_DAYS } from "@/lib/notion";
@@ -29,9 +28,10 @@ interface Props {
   onDayChange: (day: number) => void;
 }
 
-/* iOS-style bottom sheet. Springs up on mount; the header acts as a drag
-   handle (onPan → sheet y) so drag-to-dismiss never competes with the
-   pager's vertical scroll. Exit is owned by the parent <AnimatePresence>. */
+/* iOS-style bottom sheet. Springs up on mount. The header and a downward
+   pull from the content top both drive the same `y` value, so drag-to-
+   dismiss never competes with the pager's horizontal swipe or scroll.
+   Exit is owned by the parent <AnimatePresence>. */
 export default function DaySheet({
   run,
   schema,
@@ -56,13 +56,6 @@ export default function DaySheet({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // move focus into the dialog on open, restore it to the opener on close
-  useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null;
-    rootRef.current?.focus();
-    return () => opener?.focus?.();
-  }, []);
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onRequestClose();
@@ -71,16 +64,24 @@ export default function DaySheet({
     return () => window.removeEventListener("keydown", onKey);
   }, [onRequestClose]);
 
-  const onPan = useCallback(
-    (_: unknown, info: PanInfo) => {
-      y.set(Math.max(0, info.offset.y));
+  // move focus into the dialog on open, restore it to the opener on close
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    rootRef.current?.focus();
+    return () => opener?.focus?.();
+  }, []);
+
+  // shared drag-to-dismiss: used by the header handle and the content pull
+  const pull = useCallback(
+    (offsetY: number) => {
+      y.set(Math.max(0, offsetY));
     },
     [y],
   );
 
-  const onPanEnd = useCallback(
-    (_: unknown, info: PanInfo) => {
-      if (info.offset.y > DISMISS_OFFSET || info.velocity.y > DISMISS_VELOCITY) {
+  const pullEnd = useCallback(
+    (offsetY: number, velocityY: number) => {
+      if (offsetY > DISMISS_OFFSET || velocityY > DISMISS_VELOCITY) {
         onRequestClose();
       } else {
         animate(y, 0, SETTLE);
@@ -123,8 +124,8 @@ export default function DaySheet({
       >
         <motion.header
           className="rb-sheet-head"
-          onPan={onPan}
-          onPanEnd={onPanEnd}
+          onPan={(_, info) => pull(info.offset.y)}
+          onPanEnd={(_, info) => pullEnd(info.offset.y, info.velocity.y)}
         >
           <div className="rb-sheet-grab" aria-hidden />
           <div className="rb-sheet-titles">
@@ -147,6 +148,8 @@ export default function DaySheet({
           days={days}
           initialDay={initialDay}
           onDayChange={handleDayChange}
+          onPull={pull}
+          onPullEnd={pullEnd}
         />
       </motion.div>
     </div>

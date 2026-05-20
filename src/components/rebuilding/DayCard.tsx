@@ -1,7 +1,8 @@
 "use client";
 
-import type { Day, Schema } from "@/lib/notion";
+import type { CellValue, Day, PropDef, Schema } from "@/lib/notion";
 import { NOTION_COLOR_GRAD, habitDef } from "./constants";
+import { getIcon } from "./icons";
 import DayBlocks from "./DayBlocks";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -12,6 +13,51 @@ function formatDate(iso: string | null): string {
   return d
     .toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
     .toLowerCase();
+}
+
+const TYPE_ORDER: Record<string, number> = { checkbox: 0, select: 1, number: 2 };
+
+/* One property as a compact pill — icon + state. Reuses the habit icon/colour
+   vocabulary from the dashboard so a day reads at a glance. */
+function Pill({ prop, value }: { prop: PropDef; value: CellValue }) {
+  const def = habitDef(prop.name);
+  const Icon = getIcon(def.icon);
+
+  if (prop.type === "checkbox") {
+    const done = value === true;
+    return (
+      <span
+        className={`rb-pill ${done ? "rb-pill-on" : ""}`}
+        style={done ? { background: def.color + "1f", color: def.color } : undefined}
+      >
+        <Icon size={11} strokeWidth={2.5} />
+        <span className="rb-pill-label">{prop.name}</span>
+      </span>
+    );
+  }
+
+  if (prop.type === "select") {
+    const has = typeof value === "string";
+    const opt = has ? prop.options?.find((o) => o.name === value) : undefined;
+    const grad = NOTION_COLOR_GRAD[opt?.color ?? "default"] ?? NOTION_COLOR_GRAD.default;
+    return (
+      <span className={`rb-pill rb-pill-stat ${has ? "" : "rb-pill-empty"}`}>
+        <Icon size={11} strokeWidth={2.5} style={{ color: def.color }} />
+        <span className="rb-pill-label" style={has ? { color: grad[1] } : undefined}>
+          {has ? (value as string) : prop.name}
+        </span>
+      </span>
+    );
+  }
+
+  // number
+  const has = typeof value === "number";
+  return (
+    <span className={`rb-pill rb-pill-stat ${has ? "" : "rb-pill-empty"}`}>
+      <Icon size={11} strokeWidth={2.5} style={{ color: def.color }} />
+      <span className="rb-pill-label">{has ? (value as number) : prop.name}</span>
+    </span>
+  );
 }
 
 interface Props {
@@ -27,6 +73,12 @@ export default function DayCard({ schema, dayNum, day, blocks, loading }: Props)
   const pad = String(dayNum).padStart(2, "0");
   const values = day?.values ?? {};
 
+  // checkbox / select / number only — title, date (shown in the hero) and
+  // files are dropped so nothing is repeated.
+  const pills = schema.props
+    .filter((p) => p.type === "checkbox" || p.type === "select" || p.type === "number")
+    .sort((a, b) => (TYPE_ORDER[a.type] ?? 9) - (TYPE_ORDER[b.type] ?? 9));
+
   return (
     <div className="rb-daycard-scroll">
       <div className="rb-day-hero">
@@ -38,49 +90,11 @@ export default function DayCard({ schema, dayNum, day, blocks, loading }: Props)
         </div>
       </div>
 
-      <aside className="rb-props">
-        {schema.props
-          .filter((p) => p.type !== "title")
-          .map((p) => {
-            const v = values[p.name];
-            let content: React.ReactNode = <span className="rb-dim">—</span>;
-
-            if (p.type === "checkbox") {
-              const def = habitDef(p.name);
-              content =
-                v === true ? (
-                  <span style={{ color: def.color }}>✓</span>
-                ) : (
-                  <span className="rb-dim">—</span>
-                );
-            } else if (p.type === "select") {
-              if (typeof v === "string") {
-                const option = p.options?.find((o) => o.name === v);
-                const color = option?.color ?? "default";
-                const grad = NOTION_COLOR_GRAD[color] ?? NOTION_COLOR_GRAD.default;
-                content = <span style={{ color: grad[1] }}>{v}</span>;
-              }
-            } else if (p.type === "number") {
-              if (typeof v === "number") content = <span>{v}</span>;
-            } else if (p.type === "date") {
-              content = day?.date ? <span>{day.date}</span> : <span className="rb-dim">—</span>;
-            } else if (p.type === "rich_text") {
-              if (typeof v === "string" && v.trim())
-                content = (
-                  <span className="rb-dim-text">
-                    {v.length > 40 ? v.slice(0, 40) + "…" : v}
-                  </span>
-                );
-            }
-
-            return (
-              <div className="rb-prop" key={p.name}>
-                <span className="rb-prop-k">{p.name}</span>
-                <span className="rb-prop-v">{content}</span>
-              </div>
-            );
-          })}
-      </aside>
+      <div className="rb-pills">
+        {pills.map((p) => (
+          <Pill key={p.name} prop={p} value={values[p.name] ?? null} />
+        ))}
+      </div>
 
       <div className="rb-day-right">
         {blocks && blocks.length > 0 ? (

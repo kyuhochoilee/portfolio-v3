@@ -13,6 +13,7 @@ import {
   Apple,
   Footprints,
   Smartphone,
+  Scale,
   Circle,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -32,6 +33,7 @@ export const ICONS: Record<string, LucideIcon> = {
   Apple,
   Footprints,
   Smartphone,
+  Scale,
   Circle,
 };
 

@@ -65,6 +65,9 @@ body:has(.rb-stage) {
   overflow: hidden;
   background: var(--color-bg, #fafaf9);
   transform-origin: top center;
+  /* radius is static — invisible at full size, revealed by the scale-back.
+     Animating it would repaint this large subtree every frame. */
+  border-radius: 16px;
   will-change: transform;
 }
 .rb-runscroll {
@@ -326,6 +329,7 @@ body:has(.rb-stage) {
   position: absolute;
   inset: 0;
   background: #000000;
+  will-change: opacity;
 }
 .rb-sheet {
   position: absolute;
@@ -412,6 +416,9 @@ body:has(.rb-stage) {
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  /* keeps a top-of-page downward drag from scroll-chaining — the browser
+     then leaves that gesture to JS, which routes it to pull-to-dismiss */
+  overscroll-behavior: contain;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -425,35 +432,43 @@ body:has(.rb-stage) {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 12px 20px;
-  margin-bottom: 28px;
+  gap: 10px 18px;
+  margin-bottom: 18px;
 }
 .rb-day-num {
-  font-size: 56px;
+  font-size: 52px;
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1;
 }
-.rb-day-title { font-size: 13px; margin-bottom: 4px; }
+.rb-day-title { font-size: 13px; }
+.rb-dim { color: var(--rb-ink-dimmer); font-weight: 400; }
 
-.rb-props { margin-bottom: 4px; }
-.rb-prop {
-  padding: 10px 0;
-  border-top: 1px solid var(--rb-rule);
+/* compact property pills — reuse the dashboard's habit icon/colour set */
+.rb-pills {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
 }
-.rb-prop:first-child { border-top: 0; padding-top: 0; }
-.rb-prop-k {
+.rb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: var(--rb-cell-future);
+  color: var(--rb-ink-dimmer);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--rb-ink-dimmer);
+  letter-spacing: 0.07em;
+  line-height: 1;
 }
-.rb-prop-v { font-size: 12px; font-weight: 500; }
-.rb-dim { color: var(--rb-ink-dimmer); font-weight: 400; }
-.rb-day-right { margin-top: 28px; }
+.rb-pill svg { display: block; flex-shrink: 0; }
+.rb-pill-label { font-weight: 500; }
+.rb-pill-stat { color: var(--rb-ink); }
+.rb-pill-empty { color: var(--rb-ink-dimmer); }
+
+.rb-day-right { margin-top: 26px; }
 
 /* loading skeleton */
 .rb-skeleton {
