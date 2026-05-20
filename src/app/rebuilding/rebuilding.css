@@ -485,7 +485,8 @@ body:has(.rb-wrap) {
   align-items: center;
   justify-content: center;
   padding: 32px 20px;
-  background: var(--rb-bg, #ffffff);
+  background: #ffffff;
+  color: #0a0a0a;
   font-family: var(--font-mono, "Geist Mono", ui-monospace, monospace);
 }
 .rb-gate-inner {
@@ -497,6 +498,7 @@ body:has(.rb-wrap) {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 6px;
+  color: #0a0a0a;
 }
 .rb-gate-sub {
   font-size: 10px;
