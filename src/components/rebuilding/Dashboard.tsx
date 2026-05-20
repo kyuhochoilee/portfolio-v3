@@ -6,6 +6,7 @@ import type { Day, Schema, RunKey } from "@/lib/notion";
 import { TOTAL_DAYS, RUNS } from "@/lib/notion";
 import HabitGrid from "./HabitGrid";
 import PhotoGrid from "./PhotoGrid";
+import DayProgressGrid from "./DayProgressGrid";
 import WeightChart from "./WeightChart";
 
 interface Props {
@@ -46,15 +47,22 @@ export default function Dashboard({ run, schema, days, onOpenDay }: Props) {
       </div>
     </div>,
 
-    schema.fileProp ? (
-      <div key="photos">
-        <div className="rb-section-head">
-          <h2>photos</h2>
-          <span className="rb-hint">tap to open</span>
-        </div>
-        <PhotoGrid days={days} total={TOTAL_DAYS} onOpenDay={onOpenDay} />
+    <div key="grid">
+      <div className="rb-section-head">
+        <h2>{schema.fileProp ? "photos" : "days"}</h2>
+        <span className="rb-hint">tap to open</span>
       </div>
-    ) : null,
+      {schema.fileProp ? (
+        <PhotoGrid days={days} total={TOTAL_DAYS} onOpenDay={onOpenDay} />
+      ) : (
+        <DayProgressGrid
+          days={days}
+          total={TOTAL_DAYS}
+          habitProps={schema.checkboxProps}
+          onOpenDay={onOpenDay}
+        />
+      )}
+    </div>,
 
     ...schema.numberProps
       .filter((p) => days.some((d) => typeof d.values[p.name] === "number"))

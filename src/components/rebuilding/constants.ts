@@ -25,9 +25,9 @@ const KNOWN_HABITS: Record<string, Omit<HabitDef, "key" | "label">> = {
   steps:      { icon: "Footprints", color: "#06d6a0", grad: ["#06d6a0", "#4ade80"] },
   screentime: { icon: "Smartphone", color: "#94a3b8", grad: ["#94a3b8", "#64748b"] },
   weight:     { icon: "Scale",      color: "#0ea5e9", grad: ["#0ea5e9", "#22d3ee"] },
-  // sleep + eating render as tiered selects; these are just fallbacks if used elsewhere
-  sleep:      { icon: "Moon",      color: "#6b7280", grad: ["#6b7280", "#9ca3af"] },
-  eating:     { icon: "Apple",     color: "#6b7280", grad: ["#6b7280", "#9ca3af"] },
+  // sleep + eating are selects; the colour is used for their day-card icon
+  sleep:      { icon: "Moon",      color: "#6366f1", grad: ["#6366f1", "#818cf8"] },
+  eating:     { icon: "Apple",     color: "#f97316", grad: ["#f97316", "#fb923c"] },
 };
 
 const FALLBACK_PALETTE: { color: string; grad: [string, string] }[] = [

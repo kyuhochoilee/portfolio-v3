@@ -263,6 +263,25 @@ body:has(.rb-stage) {
 }
 .rb-photo-has .rb-photo-label { color: rgba(255, 255, 255, 0.9); }
 
+/* habit-progress cells — photo-grid stand-in for runs without photos */
+.rb-progress-cell {
+  background: #ffffff;
+  border: 1px solid var(--rb-rule);
+}
+.rb-progress-mini {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: 2px;
+  padding: 14px 5px 5px;
+  align-content: center;
+}
+.rb-progress-dot {
+  aspect-ratio: 1;
+  border-radius: 1px;
+  background: var(--rb-cell-empty);
+}
+
 /* weight chart */
 .rb-weight-wrap { margin-bottom: 48px; }
 .rb-weight-frame {
