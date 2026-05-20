@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Day, Schema, RunKey } from "@/lib/notion";
-import { TOTAL_DAYS } from "@/lib/notion";
+import { TOTAL_DAYS, RUNS } from "@/lib/notion";
 import { NOTION_COLOR_GRAD, habitDef } from "./constants";
 import DayBlocks from "./DayBlocks";
 
@@ -31,7 +31,7 @@ export default function DayView({ run, schema, day, blocks }: Props) {
     <div className="rb-wrap">
       <header className="rb-header">
         <Link href={baseHref} className="rb-brand rb-brand-link">
-          <span className="rb-arrow">←</span>rebuilding in 50
+          <span className="rb-arrow">←</span>{RUNS[run].label}&apos;s rebuilding in 50
         </Link>
         <div className="rb-day-nav-top">
           {prev ? (

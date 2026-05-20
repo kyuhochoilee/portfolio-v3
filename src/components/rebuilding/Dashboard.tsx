@@ -1,10 +1,9 @@
 import Link from "next/link";
 import type { Day, Schema, RunKey } from "@/lib/notion";
-import { TOTAL_DAYS } from "@/lib/notion";
+import { TOTAL_DAYS, RUNS } from "@/lib/notion";
 import HabitGrid from "./HabitGrid";
 import PhotoGrid from "./PhotoGrid";
 import WeightChart from "./WeightChart";
-import Tabs from "./Tabs";
 
 interface Props {
   run: RunKey;
@@ -26,14 +25,12 @@ export default function Dashboard({ run, schema, days }: Props) {
     <div className="rb-wrap">
       <header className="rb-header">
         <Link href="/rebuilding/rules" className="rb-brand rb-brand-link">
-          rebuilding in 50
+          {RUNS[run].label}&apos;s rebuilding in 50
         </Link>
         <div className="rb-meta">
           day <b>{String(today).padStart(2, "0")}</b> of {TOTAL_DAYS}
         </div>
       </header>
-
-      <Tabs current={run} />
 
       <div className="rb-section-head"><h2>habits</h2></div>
       <div className="rb-habits">
