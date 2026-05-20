@@ -271,13 +271,22 @@ body:has(.rb-stage) {
 .rb-progress-mini {
   position: absolute;
   inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 4px 4px;
+}
+/* a square dot-grid scaled to fit whatever space the cell leaves.
+   the cell's content box is always wider than tall (label strip on top),
+   so sizing from height keeps the grid square without overflowing. */
+.rb-progress-grid {
   display: grid;
   gap: 2px;
-  padding: 14px 5px 5px;
-  align-content: center;
+  height: 100%;
+  aspect-ratio: 1;
+  max-width: 100%;
 }
 .rb-progress-dot {
-  aspect-ratio: 1;
   border-radius: 1px;
   background: var(--rb-cell-empty);
 }

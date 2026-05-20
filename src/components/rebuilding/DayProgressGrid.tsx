@@ -32,7 +32,8 @@ export default function DayProgressGrid({ days, total, habitProps, onOpenDay }: 
   const dayMap = new Map<number, Day>();
   for (const d of days) dayMap.set(d.day, d);
 
-  const cols = habitProps.length <= 4 ? 2 : habitProps.length <= 9 ? 3 : 4;
+  // a square grid that always fits the cell, however many habits there are
+  const side = Math.max(1, Math.ceil(Math.sqrt(habitProps.length)));
 
   return (
     <div className="rb-photos">
@@ -51,20 +52,25 @@ export default function DayProgressGrid({ days, total, habitProps, onOpenDay }: 
             whileHover={{ scale: 1.05, zIndex: 2 }}
             transition={{ type: "spring", stiffness: 600, damping: 30 }}
           >
-            <span
-              className="rb-progress-mini"
-              style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
-            >
-              {habitProps.map((p) => {
-                const fill = dotFill(p, day?.values[p.name] ?? null);
-                return (
-                  <span
-                    key={p.name}
-                    className="rb-progress-dot"
-                    style={fill ? { background: fill } : undefined}
-                  />
-                );
-              })}
+            <span className="rb-progress-mini">
+              <span
+                className="rb-progress-grid"
+                style={{
+                  gridTemplateColumns: `repeat(${side}, 1fr)`,
+                  gridTemplateRows: `repeat(${side}, 1fr)`,
+                }}
+              >
+                {habitProps.map((p) => {
+                  const fill = dotFill(p, day?.values[p.name] ?? null);
+                  return (
+                    <span
+                      key={p.name}
+                      className="rb-progress-dot"
+                      style={fill ? { background: fill } : undefined}
+                    />
+                  );
+                })}
+              </span>
             </span>
             <span className="rb-photo-label">{pad}</span>
           </motion.button>
