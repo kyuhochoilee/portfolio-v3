@@ -4,6 +4,7 @@ import { TOTAL_DAYS, RUNS } from "@/lib/notion";
 import HabitGrid from "./HabitGrid";
 import PhotoGrid from "./PhotoGrid";
 import WeightChart from "./WeightChart";
+import SwipeNav from "./SwipeNav";
 
 interface Props {
   run: RunKey;
@@ -21,7 +22,12 @@ export default function Dashboard({ run, schema, days }: Props) {
   // weight goal: hardcode 163 for kyu; let chart auto-range for others
   const weightGoal = run === "kyu" && schema.weightProp === "weight" ? 163 : undefined;
 
+  // swipe between runs: kyu ⇄ zaza
+  const nextHref = run === "kyu" ? "/rebuilding/zaza" : undefined;
+  const prevHref = run === "zaza" ? "/rebuilding" : undefined;
+
   return (
+    <SwipeNav nextHref={nextHref} prevHref={prevHref}>
     <div className="rb-wrap">
       <header className="rb-header">
         <Link href="/rebuilding/rules" className="rb-brand rb-brand-link">
@@ -60,5 +66,6 @@ export default function Dashboard({ run, schema, days }: Props) {
           </div>
         ))}
     </div>
+    </SwipeNav>
   );
 }

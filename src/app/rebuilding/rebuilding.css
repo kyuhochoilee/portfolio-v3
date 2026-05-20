@@ -53,6 +53,9 @@ body:has(.rb-wrap) {
 
 .rb-dim-text { color: var(--rb-ink-dim); font-weight: 400; font-size: 11px; }
 
+/* swipe-to-switch-run wrapper: claim horizontal gestures, keep vertical scroll */
+.rb-swipe { touch-action: pan-y; }
+
 /* floating bottom bar — kyu / zaza switcher.
    Rendered outside .rb-wrap, so it must NOT use --rb-* vars — they
    aren't in scope here. Literal colors keep it theme-independent. */
