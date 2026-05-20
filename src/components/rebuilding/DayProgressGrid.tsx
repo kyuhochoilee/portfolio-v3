@@ -1,14 +1,28 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Day, PropDef } from "@/lib/notion";
-import { habitDef, gradCss } from "./constants";
+import type { CellValue, Day, PropDef } from "@/lib/notion";
+import { habitDef, gradCss, NOTION_COLOR_GRAD } from "./constants";
 
 interface Props {
   days: Day[];
   total: number;
-  habitProps: PropDef[]; // checkbox habits
+  habitProps: PropDef[]; // checkbox + select habits
   onOpenDay: (day: number) => void;
+}
+
+/* The fill colour for a day's habit dot — habit gradient for a ticked
+   checkbox, the Notion option colour for a select that has a value. */
+function dotFill(prop: PropDef, value: CellValue): string | undefined {
+  if (prop.type === "checkbox") {
+    return value === true ? gradCss(habitDef(prop.name).grad) : undefined;
+  }
+  if (prop.type === "select" && typeof value === "string") {
+    const opt = prop.options?.find((o) => o.name === value);
+    const grad = NOTION_COLOR_GRAD[opt?.color ?? "default"] ?? NOTION_COLOR_GRAD.default;
+    return gradCss(grad);
+  }
+  return undefined;
 }
 
 /* Photo-grid stand-in for runs without a photo property. Each day is a
@@ -42,12 +56,12 @@ export default function DayProgressGrid({ days, total, habitProps, onOpenDay }: 
               style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
             >
               {habitProps.map((p) => {
-                const done = day?.values[p.name] === true;
+                const fill = dotFill(p, day?.values[p.name] ?? null);
                 return (
                   <span
                     key={p.name}
                     className="rb-progress-dot"
-                    style={done ? { background: gradCss(habitDef(p.name).grad) } : undefined}
+                    style={fill ? { background: fill } : undefined}
                   />
                 );
               })}

@@ -22,8 +22,8 @@ import type { Day, Schema, RunKey } from "@/lib/notion";
 import { TOTAL_DAYS } from "@/lib/notion";
 import DayCard from "./DayCard";
 
-const SPRING = { type: "spring", stiffness: 320, damping: 38, mass: 0.9 } as const;
-const AXIS_LOCK = 6; // px before a gesture commits to an axis
+const SLIDE = { type: "spring", stiffness: 360, damping: 40, mass: 0.9 } as const;
+const AXIS_LOCK = 6; // px before a gesture commits
 
 interface Props {
   run: RunKey;
@@ -35,10 +35,10 @@ interface Props {
   onPullEnd: (offsetY: number, velocityY: number) => void;
 }
 
-/* Horizontal drag pager across all 50 days. One page per swipe (velocity-
-   biased), virtualized content, lazy block fetch with neighbor prefetch.
-   A downward pan while a page is scrolled to its top is forwarded to the
-   sheet as a pull-to-dismiss gesture. */
+/* One day at a time. Navigation is by the bottom bar (or arrow keys); the
+   track still slides between days for a tactile transition. A downward pan
+   while the page is at its scroll-top is forwarded to the sheet as a
+   pull-to-dismiss — with no horizontal swipe there is nothing to fight. */
 export default function DayPager({
   run,
   schema,
@@ -57,8 +57,7 @@ export default function DayPager({
   const indexRef = useRef(index);
   indexRef.current = index;
 
-  // Mount only the current day on open; widen the window once the open
-  // animation has had a frame, or as soon as the user starts a gesture.
+  // mount only the current day on open; widen once warm
   const [warm, setWarm] = useState(false);
   const win = warm ? 2 : 0;
 
@@ -114,7 +113,6 @@ export default function DayPager({
     return () => ro.disconnect();
   }, [x]);
 
-  // widen the render window shortly after open (idle fallback)
   useEffect(() => {
     const t = setTimeout(() => setWarm(true), 280);
     return () => clearTimeout(t);
@@ -132,59 +130,51 @@ export default function DayPager({
   const goTo = useCallback(
     (target: number) => {
       const t = Math.max(0, Math.min(TOTAL_DAYS - 1, target));
+      setWarm(true);
       setIndex(t);
       indexRef.current = t;
       if (reduce || pageW === 0) x.set(-t * pageW);
-      else animate(x, -t * pageW, SPRING);
+      else animate(x, -t * pageW, SLIDE);
     },
     [pageW, reduce, x],
   );
 
-  const onDragEnd = useCallback(
-    (_: unknown, info: PanInfo) => {
-      const start = indexRef.current;
-      let target = start;
-      if (info.offset.x < -pageW * 0.22 || info.velocity.x < -450) target = start + 1;
-      else if (info.offset.x > pageW * 0.22 || info.velocity.x > 450) target = start - 1;
-      goTo(target);
-    },
-    [pageW, goTo],
-  );
-
-  // ----- pull-to-dismiss arbitration -----
-  // lock: which behaviour this gesture committed to.
-  const lock = useRef<null | "x" | "scroll" | "pull">(null);
+  // ----- pull-to-dismiss (downward drag from a page's scroll-top) -----
+  const decided = useRef(false);
+  const pulling = useRef(false);
   const startScrollTop = useRef(0);
 
-  const activePageScrollTop = useCallback(() => {
+  const activeScrollTop = useCallback(() => {
     const pages = viewportRef.current?.querySelectorAll<HTMLElement>(".rb-page");
     return pages?.[indexRef.current]?.scrollTop ?? 0;
   }, []);
 
   const onPanStart = useCallback(() => {
-    lock.current = null;
-    startScrollTop.current = activePageScrollTop();
-    setWarm(true); // user is interacting → mount neighbors now
-  }, [activePageScrollTop]);
+    decided.current = false;
+    pulling.current = false;
+    startScrollTop.current = activeScrollTop();
+  }, [activeScrollTop]);
 
   const onPan = useCallback(
     (_: unknown, info: PanInfo) => {
-      if (lock.current === null) {
-        const ax = Math.abs(info.offset.x);
-        const ay = Math.abs(info.offset.y);
-        if (ax < AXIS_LOCK && ay < AXIS_LOCK) return;
-        if (ax > ay) lock.current = "x";
-        else lock.current = info.offset.y > 0 && startScrollTop.current <= 0 ? "pull" : "scroll";
+      if (!decided.current) {
+        if (Math.abs(info.offset.x) < AXIS_LOCK && Math.abs(info.offset.y) < AXIS_LOCK) return;
+        decided.current = true;
+        pulling.current =
+          info.offset.y > Math.abs(info.offset.x) &&
+          info.offset.y > 0 &&
+          startScrollTop.current <= 0;
       }
-      if (lock.current === "pull") onPull(info.offset.y);
+      if (pulling.current) onPull(info.offset.y);
     },
     [onPull],
   );
 
   const onPanEnd = useCallback(
     (_: unknown, info: PanInfo) => {
-      if (lock.current === "pull") onPullEnd(info.offset.y, info.velocity.y);
-      lock.current = null;
+      if (pulling.current) onPullEnd(info.offset.y, info.velocity.y);
+      decided.current = false;
+      pulling.current = false;
     },
     [onPullEnd],
   );
@@ -199,39 +189,60 @@ export default function DayPager({
   }, [goTo]);
 
   return (
-    <div className="rb-pager-viewport" ref={viewportRef}>
-      {pageW > 0 && (
-        <motion.div
-          className="rb-pager-track"
-          style={{ x }}
-          drag="x"
-          dragConstraints={{ left: -(TOTAL_DAYS - 1) * pageW, right: 0 }}
-          dragElastic={0.16}
-          dragMomentum={false}
-          onDragEnd={onDragEnd}
-          onPanStart={onPanStart}
-          onPan={onPan}
-          onPanEnd={onPanEnd}
+    <div className="rb-pager-root">
+      <motion.div
+        className="rb-pager-viewport"
+        ref={viewportRef}
+        onPanStart={onPanStart}
+        onPan={onPan}
+        onPanEnd={onPanEnd}
+      >
+        {pageW > 0 && (
+          <motion.div className="rb-pager-track" style={{ x }}>
+            {Array.from({ length: TOTAL_DAYS }, (_, i) => {
+              const dayNum = i + 1;
+              const near = Math.abs(i - index) <= win;
+              return (
+                <div className="rb-page" key={dayNum} style={{ width: pageW }}>
+                  {near && (
+                    <DayCard
+                      schema={schema}
+                      dayNum={dayNum}
+                      day={dayMap.get(dayNum) ?? null}
+                      blocks={blocksCache.current.get(dayNum) ?? null}
+                      loading={loadingRef.current.has(dayNum)}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </motion.div>
+        )}
+      </motion.div>
+
+      <nav className="rb-daynav" aria-label="day navigation">
+        <button
+          type="button"
+          className="rb-daynav-btn"
+          aria-label="previous day"
+          disabled={index <= 0}
+          onClick={() => goTo(index - 1)}
         >
-          {Array.from({ length: TOTAL_DAYS }, (_, i) => {
-            const dayNum = i + 1;
-            const near = Math.abs(i - index) <= win;
-            return (
-              <div className="rb-page" key={dayNum} style={{ width: pageW }}>
-                {near && (
-                  <DayCard
-                    schema={schema}
-                    dayNum={dayNum}
-                    day={dayMap.get(dayNum) ?? null}
-                    blocks={blocksCache.current.get(dayNum) ?? null}
-                    loading={loadingRef.current.has(dayNum)}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </motion.div>
-      )}
+          ←
+        </button>
+        <span className="rb-daynav-label">
+          day {String(index + 1).padStart(2, "0")} / {TOTAL_DAYS}
+        </span>
+        <button
+          type="button"
+          className="rb-daynav-btn"
+          aria-label="next day"
+          disabled={index >= TOTAL_DAYS - 1}
+          onClick={() => goTo(index + 1)}
+        >
+          →
+        </button>
+      </nav>
     </div>
   );
 }

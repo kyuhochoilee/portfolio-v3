@@ -58,7 +58,7 @@ export default function Dashboard({ run, schema, days, onOpenDay }: Props) {
         <DayProgressGrid
           days={days}
           total={TOTAL_DAYS}
-          habitProps={schema.checkboxProps}
+          habitProps={[...schema.checkboxProps, ...schema.selectProps]}
           onOpenDay={onOpenDay}
         />
       )}

@@ -16,8 +16,8 @@ const ENTER = { type: "spring", stiffness: 380, damping: 42, mass: 0.9 } as cons
 const SETTLE = { type: "spring", stiffness: 520, damping: 44 } as const;
 // exit is quicker than entrance and ease-in-biased — standard for dismissals
 const EXIT = { duration: 0.26, ease: [0.32, 0.72, 0, 1] } as const;
-const DISMISS_OFFSET = 130;
-const DISMISS_VELOCITY = 680;
+const DISMISS_OFFSET = 100;
+const DISMISS_VELOCITY = 520;
 
 interface Props {
   run: RunKey;
