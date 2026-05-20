@@ -444,7 +444,13 @@ body:has(.rb-stage) {
 .rb-day-title { font-size: 13px; }
 .rb-dim { color: var(--rb-ink-dimmer); font-weight: 400; }
 
-/* compact property pills — reuse the dashboard's habit icon/colour set */
+/* compact property pills — reuse the dashboard's habit icon/colour set.
+   stats (eating / sleep / weight) sit on their own row above the habits. */
+.rb-pill-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .rb-pills {
   display: flex;
   flex-wrap: wrap;

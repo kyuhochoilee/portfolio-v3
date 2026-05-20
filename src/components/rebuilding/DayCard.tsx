@@ -15,8 +15,6 @@ function formatDate(iso: string | null): string {
     .toLowerCase();
 }
 
-const TYPE_ORDER: Record<string, number> = { checkbox: 0, select: 1, number: 2 };
-
 /* One property as a compact pill — icon + state. Reuses the habit icon/colour
    vocabulary from the dashboard so a day reads at a glance. */
 function Pill({ prop, value }: { prop: PropDef; value: CellValue }) {
@@ -73,11 +71,10 @@ export default function DayCard({ schema, dayNum, day, blocks, loading }: Props)
   const pad = String(dayNum).padStart(2, "0");
   const values = day?.values ?? {};
 
-  // checkbox / select / number only — title, date (shown in the hero) and
-  // files are dropped so nothing is repeated.
-  const pills = schema.props
-    .filter((p) => p.type === "checkbox" || p.type === "select" || p.type === "number")
-    .sort((a, b) => (TYPE_ORDER[a.type] ?? 9) - (TYPE_ORDER[b.type] ?? 9));
+  // stats (eating / sleep / weight) get their own row above the habit
+  // checkboxes. title, date (shown in the hero) and files are dropped.
+  const stats = schema.props.filter((p) => p.type === "select" || p.type === "number");
+  const habits = schema.props.filter((p) => p.type === "checkbox");
 
   return (
     <div className="rb-daycard-scroll">
@@ -90,10 +87,21 @@ export default function DayCard({ schema, dayNum, day, blocks, loading }: Props)
         </div>
       </div>
 
-      <div className="rb-pills">
-        {pills.map((p) => (
-          <Pill key={p.name} prop={p} value={values[p.name] ?? null} />
-        ))}
+      <div className="rb-pill-groups">
+        {stats.length > 0 && (
+          <div className="rb-pills">
+            {stats.map((p) => (
+              <Pill key={p.name} prop={p} value={values[p.name] ?? null} />
+            ))}
+          </div>
+        )}
+        {habits.length > 0 && (
+          <div className="rb-pills">
+            {habits.map((p) => (
+              <Pill key={p.name} prop={p} value={values[p.name] ?? null} />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="rb-day-right">
