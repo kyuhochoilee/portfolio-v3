@@ -32,8 +32,10 @@ export default function DayProgressGrid({ days, total, habitProps, onOpenDay }: 
   const dayMap = new Map<number, Day>();
   for (const d of days) dayMap.set(d.day, d);
 
-  // a square grid that always fits the cell, however many habits there are
+  // a full square grid — pad past the habit count so every cell renders a
+  // complete N×N grid (no lone trailing dot) and always fits the square
   const side = Math.max(1, Math.ceil(Math.sqrt(habitProps.length)));
+  const slots = side * side;
 
   return (
     <div className="rb-photos">
@@ -52,7 +54,8 @@ export default function DayProgressGrid({ days, total, habitProps, onOpenDay }: 
             whileHover={{ scale: 1.05, zIndex: 2 }}
             transition={{ type: "spring", stiffness: 600, damping: 30 }}
           >
-            <span className="rb-progress-mini">
+            <span className="rb-progress-num">{pad}</span>
+            <span className="rb-progress-gridwrap">
               <span
                 className="rb-progress-grid"
                 style={{
@@ -60,11 +63,14 @@ export default function DayProgressGrid({ days, total, habitProps, onOpenDay }: 
                   gridTemplateRows: `repeat(${side}, 1fr)`,
                 }}
               >
-                {habitProps.map((p) => {
-                  const fill = dotFill(p, day?.values[p.name] ?? null);
+                {Array.from({ length: slots }, (_, s) => {
+                  const prop = habitProps[s];
+                  const fill = prop
+                    ? dotFill(prop, day?.values[prop.name] ?? null)
+                    : undefined;
                   return (
                     <span
-                      key={p.name}
+                      key={s}
                       className="rb-progress-dot"
                       style={fill ? { background: fill } : undefined}
                     />
@@ -72,7 +78,6 @@ export default function DayProgressGrid({ days, total, habitProps, onOpenDay }: 
                 })}
               </span>
             </span>
-            <span className="rb-photo-label">{pad}</span>
           </motion.button>
         );
       })}

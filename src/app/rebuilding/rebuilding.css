@@ -265,20 +265,28 @@ body:has(.rb-stage) {
 
 /* habit-progress cells — photo-grid stand-in for runs without photos */
 .rb-progress-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 5px;
   background: #ffffff;
   border: 1px solid var(--rb-rule);
 }
-.rb-progress-mini {
-  position: absolute;
-  inset: 0;
+.rb-progress-num {
+  flex-shrink: 0;
+  font-size: 8px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--rb-ink-dimmer);
+}
+.rb-progress-gridwrap {
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 13px 4px 4px;
 }
-/* a square dot-grid scaled to fit whatever space the cell leaves.
-   the cell's content box is always wider than tall (label strip on top),
-   so sizing from height keeps the grid square without overflowing. */
+/* square dot-grid sized from height so it always fits the cell cleanly */
 .rb-progress-grid {
   display: grid;
   gap: 2px;
@@ -287,7 +295,7 @@ body:has(.rb-stage) {
   max-width: 100%;
 }
 .rb-progress-dot {
-  border-radius: 1px;
+  border-radius: 2px;
   background: var(--rb-cell-empty);
 }
 
