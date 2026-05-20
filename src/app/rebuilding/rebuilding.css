@@ -88,7 +88,7 @@ body:has(.rb-wrap) {
   background: var(--rb-ink);
   color: #fff;
 }
-.rb-bb-emoji { font-size: 15px; line-height: 1; }
+.rb-bb-icon { width: 17px; height: 17px; flex-shrink: 0; }
 
 .rb-section-head {
   display: flex;

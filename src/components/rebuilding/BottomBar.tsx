@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { GiSittingDog, GiDuck } from "react-icons/gi";
 
 const ITEMS = [
-  { key: "kyu", label: "kyu", emoji: "🐶", href: "/rebuilding" },
-  { key: "zaza", label: "zaza", emoji: "🦆", href: "/rebuilding/zaza" },
+  { key: "kyu", label: "kyu", Icon: GiSittingDog, href: "/rebuilding" },
+  { key: "zaza", label: "zaza", Icon: GiDuck, href: "/rebuilding/zaza" },
 ];
 
 export default function BottomBar() {
@@ -14,15 +15,15 @@ export default function BottomBar() {
 
   return (
     <nav className="rb-bottombar" aria-label="whose rebuild">
-      {ITEMS.map((it) => (
+      {ITEMS.map(({ key, label, Icon, href }) => (
         <Link
-          key={it.key}
-          href={it.href}
-          className={`rb-bb-item ${current === it.key ? "rb-bb-active" : ""}`}
-          aria-current={current === it.key ? "page" : undefined}
+          key={key}
+          href={href}
+          className={`rb-bb-item ${current === key ? "rb-bb-active" : ""}`}
+          aria-current={current === key ? "page" : undefined}
         >
-          <span className="rb-bb-emoji">{it.emoji}</span>
-          <span className="rb-bb-label">{it.label}</span>
+          <Icon className="rb-bb-icon" aria-hidden />
+          <span className="rb-bb-label">{label}</span>
         </Link>
       ))}
     </nav>
