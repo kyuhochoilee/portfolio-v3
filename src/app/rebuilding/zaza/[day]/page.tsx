@@ -3,7 +3,7 @@ import { isThoughtsUnlocked } from "@/lib/thoughtsAuth";
 import { getDay, getDayBlocks, getSchema, TOTAL_DAYS } from "@/lib/notion";
 import DayView from "@/components/rebuilding/DayView";
 import PasswordGate from "@/components/rebuilding/PasswordGate";
-import "../rebuilding.css";
+import "../../rebuilding.css";
 
 interface PageProps {
   params: Promise<{ day: string }>;
@@ -20,11 +20,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps) {
   const { day } = await params;
   const n = parseInt(day, 10);
-  if (!n) return { title: "day — rebuilding" };
-  return { title: `day ${String(n).padStart(2, "0")} — rebuilding` };
+  return { title: `zaza · day ${String(n).padStart(2, "0")} — rebuilding` };
 }
 
-export default async function DayPage({ params }: PageProps) {
+export default async function ZazaDayPage({ params }: PageProps) {
   const unlocked = await isThoughtsUnlocked();
   if (!unlocked) return <PasswordGate />;
 
@@ -32,9 +31,9 @@ export default async function DayPage({ params }: PageProps) {
   const dayNum = parseInt(dayParam, 10);
   if (!dayNum || dayNum < 1 || dayNum > TOTAL_DAYS) notFound();
 
-  const schema = await getSchema("kyu");
+  const schema = await getSchema("zaza");
   if (!schema) return <div className="rb-wrap">schema unavailable</div>;
-  const day = await getDay("kyu", dayNum);
+  const day = await getDay("zaza", dayNum);
 
   if (!day) {
     const empty = {
@@ -45,9 +44,9 @@ export default async function DayPage({ params }: PageProps) {
       values: {},
       notes: null,
     };
-    return <DayView run="kyu" schema={schema} day={empty} blocks={[]} />;
+    return <DayView run="zaza" schema={schema} day={empty} blocks={[]} />;
   }
 
   const blocks = await getDayBlocks(day.id);
-  return <DayView run="kyu" schema={schema} day={day} blocks={blocks} />;
+  return <DayView run="zaza" schema={schema} day={day} blocks={blocks} />;
 }

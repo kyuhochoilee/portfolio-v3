@@ -2,20 +2,19 @@ import { isThoughtsUnlocked } from "@/lib/thoughtsAuth";
 import { getAllDays, getSchema } from "@/lib/notion";
 import Dashboard from "@/components/rebuilding/Dashboard";
 import PasswordGate from "@/components/rebuilding/PasswordGate";
-import "./rebuilding.css";
+import "../rebuilding.css";
 
 export const revalidate = 60;
 
 export const metadata = {
-  title: "rebuilding in 50",
-  description: "50-day rebuild — habit tracker + progress dashboard.",
+  title: "zaza — rebuilding in 50",
 };
 
-export default async function RebuildingPage() {
+export default async function ZazaPage() {
   const unlocked = await isThoughtsUnlocked();
   if (!unlocked) return <PasswordGate />;
 
-  const [schema, days] = await Promise.all([getSchema("kyu"), getAllDays("kyu")]);
+  const [schema, days] = await Promise.all([getSchema("zaza"), getAllDays("zaza")]);
   if (!schema) return <div className="rb-wrap">schema unavailable</div>;
-  return <Dashboard run="kyu" schema={schema} days={days} />;
+  return <Dashboard run="zaza" schema={schema} days={days} />;
 }

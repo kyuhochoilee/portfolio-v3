@@ -1,7 +1,7 @@
 import Link from "next/link";
-import type { Day } from "@/lib/notion";
+import type { Day, Schema, RunKey } from "@/lib/notion";
 import { TOTAL_DAYS } from "@/lib/notion";
-import { HABITS, sleepTier, eatingTier } from "./constants";
+import { NOTION_COLOR_GRAD, habitDef } from "./constants";
 import DayBlocks from "./DayBlocks";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -9,45 +9,40 @@ import DayBlocks from "./DayBlocks";
 function formatDate(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }).toLowerCase();
+  return d
+    .toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+    .toLowerCase();
 }
 
 interface Props {
+  run: RunKey;
+  schema: Schema;
   day: Day;
   blocks: any[];
 }
 
-export default function DayView({ day, blocks }: Props) {
+export default function DayView({ run, schema, day, blocks }: Props) {
   const pad = String(day.day).padStart(2, "0");
-  const sleepLabel = day.sleep || "—";
-  const eatingLabel = day.eating || "—";
-
-  const sleepT = sleepTier(day.sleep);
-  const eatingT = eatingTier(day.eating);
-  const sleepColor =
-    sleepT === "good" ? "var(--rb-good)" : sleepT === "mid" ? "var(--rb-mid)" : sleepT === "bad" ? "var(--rb-bad)" : "var(--rb-ink-dimmer)";
-  const eatingColor =
-    eatingT === "good" ? "var(--rb-good)" : eatingT === "mid" ? "var(--rb-mid)" : eatingT === "bad" ? "var(--rb-bad)" : "var(--rb-ink-dimmer)";
-
+  const baseHref = run === "kyu" ? "/rebuilding" : `/rebuilding/${run}`;
   const prev = day.day > 1 ? String(day.day - 1).padStart(2, "0") : null;
   const next = day.day < TOTAL_DAYS ? String(day.day + 1).padStart(2, "0") : null;
 
   return (
     <div className="rb-wrap">
       <header className="rb-header">
-        <Link href="/rebuilding" className="rb-brand rb-brand-link">
+        <Link href={baseHref} className="rb-brand rb-brand-link">
           <span className="rb-arrow">←</span>rebuilding in 50
         </Link>
         <div className="rb-day-nav-top">
           {prev ? (
-            <Link href={`/rebuilding/${prev}`} className="rb-nav-link" aria-label={`day ${prev}`}>
+            <Link href={`${baseHref}/${prev}`} className="rb-nav-link" aria-label={`day ${prev}`}>
               ←
             </Link>
           ) : (
             <span className="rb-nav-spacer" />
           )}
           {next ? (
-            <Link href={`/rebuilding/${next}`} className="rb-nav-link" aria-label={`day ${next}`}>
+            <Link href={`${baseHref}/${next}`} className="rb-nav-link" aria-label={`day ${next}`}>
               →
             </Link>
           ) : (
@@ -65,38 +60,50 @@ export default function DayView({ day, blocks }: Props) {
 
       <div className="rb-day-body">
         <aside className="rb-props">
-          <div className="rb-prop">
-            <span className="rb-prop-k">weight</span>
-            <span className="rb-prop-v">
-              {typeof day.weight === "number" ? `${day.weight} lbs` : <span className="rb-dim">—</span>}
-            </span>
-          </div>
-          <div className="rb-prop">
-            <span className="rb-prop-k">sleep</span>
-            <span className="rb-prop-v" style={{ color: sleepColor }}>{sleepLabel}</span>
-          </div>
-          <div className="rb-prop">
-            <span className="rb-prop-k">eating</span>
-            <span className="rb-prop-v" style={{ color: eatingColor }}>{eatingLabel}</span>
-          </div>
-          {HABITS.filter((h) => h.key !== "sleep" && h.key !== "eating").map((h) => {
-            const done = day.checks[h.key as keyof typeof day.checks];
-            return (
-              <div className="rb-prop" key={h.key}>
-                <span className="rb-prop-k">{h.label}</span>
-                <span className="rb-prop-v" style={{ color: done ? h.color : "var(--rb-ink-dimmer)" }}>
-                  {done ? "✓" : "—"}
-                </span>
-              </div>
-            );
-          })}
+          {schema.props
+            .filter((p) => p.type !== "title")
+            .map((p) => {
+              const v = day.values[p.name];
+              let content: React.ReactNode = <span className="rb-dim">—</span>;
+              let valueColor: string | undefined;
+
+              if (p.type === "checkbox") {
+                const def = habitDef(p.name);
+                content =
+                  v === true ? (
+                    <span style={{ color: def.color }}>✓</span>
+                  ) : (
+                    <span className="rb-dim">—</span>
+                  );
+              } else if (p.type === "select") {
+                if (typeof v === "string") {
+                  const option = p.options?.find((o) => o.name === v);
+                  const color = option?.color ?? "default";
+                  const grad = NOTION_COLOR_GRAD[color] ?? NOTION_COLOR_GRAD.default;
+                  valueColor = grad[1];
+                  content = <span style={{ color: valueColor }}>{v}</span>;
+                }
+              } else if (p.type === "number") {
+                if (typeof v === "number") content = <span>{v}</span>;
+              } else if (p.type === "date") {
+                content = day.date ? <span>{day.date}</span> : <span className="rb-dim">—</span>;
+              } else if (p.type === "rich_text") {
+                if (typeof v === "string" && v.trim()) content = <span className="rb-dim-text">{v.length > 40 ? v.slice(0, 40) + "…" : v}</span>;
+              }
+
+              return (
+                <div className="rb-prop" key={p.name}>
+                  <span className="rb-prop-k">{p.name}</span>
+                  <span className="rb-prop-v">{content}</span>
+                </div>
+              );
+            })}
         </aside>
 
         <div className="rb-day-right">
           <DayBlocks blocks={blocks} />
         </div>
       </div>
-
     </div>
   );
 }

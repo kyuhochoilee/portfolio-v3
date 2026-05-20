@@ -11,6 +11,9 @@ import {
   Heart,
   Moon,
   Apple,
+  Footprints,
+  Smartphone,
+  Circle,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -27,4 +30,11 @@ export const ICONS: Record<string, LucideIcon> = {
   Heart,
   Moon,
   Apple,
+  Footprints,
+  Smartphone,
+  Circle,
 };
+
+export function getIcon(name: string): LucideIcon {
+  return ICONS[name] ?? Circle;
+}

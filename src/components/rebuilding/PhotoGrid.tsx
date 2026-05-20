@@ -5,9 +5,10 @@ import type { Day } from "@/lib/notion";
 interface Props {
   days: Day[];
   total: number;
+  baseHref: string; // e.g. "/rebuilding" or "/rebuilding/zaza"
 }
 
-export default function PhotoGrid({ days, total }: Props) {
+export default function PhotoGrid({ days, total, baseHref }: Props) {
   const dayMap = new Map<number, Day>();
   for (const d of days) dayMap.set(d.day, d);
 
@@ -21,7 +22,7 @@ export default function PhotoGrid({ days, total }: Props) {
         return (
           <Link
             key={dayNum}
-            href={`/rebuilding/${pad}`}
+            href={`${baseHref}/${pad}`}
             className={`rb-photo ${photo ? "rb-photo-has" : ""}`}
           >
             {photo && (
@@ -29,7 +30,7 @@ export default function PhotoGrid({ days, total }: Props) {
                 src={photo}
                 alt={`day ${pad}`}
                 fill
-                sizes="(max-width: 640px) 10vw, 100px"
+                sizes="(max-width: 640px) 20vw, 100px"
                 style={{ objectFit: "cover" }}
               />
             )}

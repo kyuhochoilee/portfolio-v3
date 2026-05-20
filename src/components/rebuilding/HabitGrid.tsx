@@ -1,67 +1,80 @@
-import type { Day } from "@/lib/notion";
+import type { Day, PropDef } from "@/lib/notion";
 import {
-  HABITS,
-  TIER_GRAD,
-  sleepTier,
-  eatingTier,
+  habitDef,
+  NOTION_COLOR_GRAD,
   gradCss,
-  type HabitDef,
 } from "./constants";
-import { ICONS } from "./icons";
+import { getIcon } from "./icons";
 
 interface Props {
-  habit: HabitDef;
+  prop: PropDef;
   days: Day[];
-  today: number; // day number we're on
+  today: number;
   total: number;
 }
 
-function cellState(habit: HabitDef, day: Day | undefined): { done: boolean; gradient: string | null } {
-  if (!day) return { done: false, gradient: null };
-  if (habit.key === "sleep") {
-    const t = sleepTier(day.sleep);
-    return t ? { done: true, gradient: gradCss(TIER_GRAD[t]) } : { done: false, gradient: null };
-  }
-  if (habit.key === "eating") {
-    const t = eatingTier(day.eating);
-    return t ? { done: true, gradient: gradCss(TIER_GRAD[t]) } : { done: false, gradient: null };
-  }
-  const checked = day.checks[habit.key as keyof typeof day.checks];
-  return checked ? { done: true, gradient: gradCss(habit.grad) } : { done: false, gradient: null };
+interface CellRender {
+  done: boolean;
+  gradient: string | null;
 }
 
-export default function HabitGrid({ habit, days, today, total }: Props) {
+function cellFor(prop: PropDef, value: unknown): CellRender {
+  if (prop.type === "checkbox") {
+    if (value === true) {
+      const def = habitDef(prop.name);
+      return { done: true, gradient: gradCss(def.grad) };
+    }
+    return { done: false, gradient: null };
+  }
+  if (prop.type === "select") {
+    if (typeof value !== "string") return { done: false, gradient: null };
+    const option = prop.options?.find((o) => o.name === value);
+    const color = option?.color ?? "default";
+    const grad = NOTION_COLOR_GRAD[color] ?? NOTION_COLOR_GRAD.default;
+    return { done: true, gradient: gradCss(grad) };
+  }
+  return { done: false, gradient: null };
+}
+
+export default function HabitGrid({ prop, days, today, total }: Props) {
   const dayMap = new Map<number, Day>();
   for (const d of days) dayMap.set(d.day, d);
 
-  const cells: React.ReactNode[] = [];
+  const def = habitDef(prop.name);
+  const Icon = getIcon(def.icon);
+
   let completed = 0;
+  const cells: React.ReactNode[] = [];
   for (let d = 1; d <= total; d++) {
     const isFuture = d > today;
     const day = dayMap.get(d);
-    const { done, gradient } = cellState(habit, day);
+    const { done, gradient } = isFuture
+      ? { done: false, gradient: null }
+      : cellFor(prop, day?.values[prop.name]);
     if (done) completed++;
-    const classes = ["rb-cell"];
-    if (isFuture) classes.push("rb-cell-future");
-    if (d === today) classes.push("rb-cell-today");
+    const cls = [
+      "rb-cell",
+      isFuture && "rb-cell-future",
+      d === today && "rb-cell-today",
+    ]
+      .filter(Boolean)
+      .join(" ");
     cells.push(
       <div
         key={d}
-        className={classes.join(" ")}
+        className={cls}
         style={gradient ? { background: gradient } : undefined}
       />,
     );
   }
 
-  const Icon = ICONS[habit.icon];
-
   return (
     <div className="rb-habit">
       <div className="rb-habit-head">
-        <span className="rb-habit-icon" style={{ color: habit.color }}>
-          {Icon && <Icon size={12} strokeWidth={2} fill="currentColor" />}
+        <span className="rb-habit-icon" style={{ color: def.color }}>
+          <Icon size={12} strokeWidth={2} fill="currentColor" />
         </span>
-        <span className="rb-habit-name">{habit.label}</span>
+        <span className="rb-habit-name">{def.label}</span>
         <span className="rb-habit-count">{completed}/{total}</span>
       </div>
       <div className="rb-grid">{cells}</div>

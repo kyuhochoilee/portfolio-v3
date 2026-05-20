@@ -51,6 +51,31 @@ body:has(.rb-wrap) {
 .rb-meta { color: var(--rb-ink-dim); font-size: 11px; }
 .rb-meta b { color: var(--rb-ink); font-weight: 500; }
 
+/* tabs */
+.rb-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--rb-rule);
+}
+.rb-tab {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 8px 14px;
+  color: var(--rb-ink-dimmer);
+  text-decoration: none;
+  border-bottom: 1.5px solid transparent;
+  margin-bottom: -1px;
+  transition: color 120ms ease;
+}
+.rb-tab:hover { color: var(--rb-ink-dim); }
+.rb-tab-active {
+  color: var(--rb-ink);
+  border-bottom-color: var(--rb-ink);
+}
+.rb-dim-text { color: var(--rb-ink-dim); font-weight: 400; font-size: 11px; }
+
 .rb-section-head {
   display: flex;
   flex-wrap: wrap;

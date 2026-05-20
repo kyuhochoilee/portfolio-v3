@@ -1,17 +1,26 @@
 import Link from "next/link";
-import type { Day } from "@/lib/notion";
+import type { Day, Schema, RunKey } from "@/lib/notion";
 import { TOTAL_DAYS } from "@/lib/notion";
-import { HABITS } from "./constants";
 import HabitGrid from "./HabitGrid";
 import PhotoGrid from "./PhotoGrid";
 import WeightChart from "./WeightChart";
+import Tabs from "./Tabs";
 
 interface Props {
+  run: RunKey;
+  schema: Schema;
   days: Day[];
 }
 
-export default function Dashboard({ days }: Props) {
+export default function Dashboard({ run, schema, days }: Props) {
   const today = days.length ? Math.max(...days.map((d) => d.day)) : 1;
+  const baseHref = run === "kyu" ? "/rebuilding" : `/rebuilding/${run}`;
+
+  // habit grids: every checkbox + every select
+  const habitProps = [...schema.checkboxProps, ...schema.selectProps];
+
+  // weight goal: hardcode 163 for kyu; let chart auto-range for others
+  const weightGoal = run === "kyu" && schema.weightProp === "weight" ? 163 : undefined;
 
   return (
     <div className="rb-wrap">
@@ -24,26 +33,33 @@ export default function Dashboard({ days }: Props) {
         </div>
       </header>
 
-      <div className="rb-section-head">
-        <h2>habits</h2>
-      </div>
+      <Tabs current={run} />
+
+      <div className="rb-section-head"><h2>habits</h2></div>
       <div className="rb-habits">
-        {HABITS.map((h) => (
-          <HabitGrid key={h.key} habit={h} days={days} today={today} total={TOTAL_DAYS} />
+        {habitProps.map((p) => (
+          <HabitGrid key={p.name} prop={p} days={days} today={today} total={TOTAL_DAYS} />
         ))}
       </div>
 
-      <div className="rb-section-head">
-        <h2>photos</h2>
-      </div>
-      <PhotoGrid days={days} total={TOTAL_DAYS} />
+      {schema.fileProp && (
+        <>
+          <div className="rb-section-head"><h2>photos</h2></div>
+          <PhotoGrid days={days} total={TOTAL_DAYS} baseHref={baseHref} />
+        </>
+      )}
 
-      <div className="rb-section-head">
-        <h2>weight</h2>
-      </div>
-      <div className="rb-weight-wrap">
-        <WeightChart days={days} total={TOTAL_DAYS} />
-      </div>
+      {schema.numberProps.map((p) => (
+        <div key={p.name}>
+          <div className="rb-section-head"><h2>{p.name}</h2></div>
+          <WeightChart
+            days={days}
+            total={TOTAL_DAYS}
+            propName={p.name}
+            goal={p.name === schema.weightProp ? weightGoal : undefined}
+          />
+        </div>
+      ))}
     </div>
   );
 }

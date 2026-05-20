@@ -3,22 +3,22 @@ import type { Day } from "@/lib/notion";
 interface Props {
   days: Day[];
   total: number;
+  propName: string;
   goal?: number;
+  label?: string;
 }
 
-// Layout strategy: SVG fills the chart area and uses preserveAspectRatio="none"
-// so lines stretch with the container. All text + dots are HTML overlays
-// positioned by percentage, so they never get distorted by the stretch.
-export default function WeightChart({ days, total, goal = 163 }: Props) {
+export default function WeightChart({ days, total, propName, goal, label }: Props) {
   const points = days
-    .filter((d): d is Day & { weight: number } => typeof d.weight === "number")
-    .map((d) => ({ x: d.day, y: d.weight }));
+    .map((d) => ({ x: d.day, y: d.values[propName] }))
+    .filter((p): p is { x: number; y: number } => typeof p.y === "number");
 
-  const allYs = points.map((p) => p.y).concat([goal]);
-  const yMax = Math.ceil(Math.max(...allYs) + 3);
-  const yMin = Math.floor(goal - 2);
+  if (points.length === 0) return null;
 
-  // viewBox is 100×100; reserve 6 units of vertical padding so labels fit.
+  const allYs = points.map((p) => p.y).concat(goal ? [goal] : []);
+  const yMax = Math.ceil(Math.max(...allYs) + Math.abs(Math.max(...allYs)) * 0.02 + 1);
+  const yMin = Math.floor(Math.min(...allYs) - Math.abs(Math.min(...allYs)) * 0.02 - 1);
+
   const PAD_T = 6;
   const PAD_B = 6;
   const innerH = 100 - PAD_T - PAD_B;
@@ -31,22 +31,21 @@ export default function WeightChart({ days, total, goal = 163 }: Props) {
     .join(" ");
 
   const last = points[points.length - 1];
-  const projection = last
-    ? `M ${xPos(last.x).toFixed(2)} ${yPos(last.y).toFixed(2)} L ${xPos(total).toFixed(2)} ${yPos(goal).toFixed(2)}`
-    : null;
+  const projection =
+    goal != null && last
+      ? `M ${xPos(last.x).toFixed(2)} ${yPos(last.y).toFixed(2)} L ${xPos(total).toFixed(2)} ${yPos(goal).toFixed(2)}`
+      : null;
 
-  // 5 y-axis ticks across the data range
   const ticks = 4;
   const yLabels = Array.from({ length: ticks + 1 }, (_, i) => {
     const v = yMax - (i * (yMax - yMin)) / ticks;
     return { value: Math.round(v), top: yPos(v) };
   });
 
-  const goalY = yPos(goal);
+  const goalY = goal != null ? yPos(goal) : null;
 
   return (
     <div className="rb-weight-frame">
-      {/* y-axis labels — HTML, positioned relative to the frame */}
       {yLabels.map((l) => (
         <div key={l.value} className="rb-weight-y" style={{ top: `${l.top}%` }}>
           {l.value}
@@ -65,14 +64,16 @@ export default function WeightChart({ days, total, goal = 163 }: Props) {
               vectorEffect="non-scaling-stroke"
             />
           ))}
-          <line
-            className="rb-weight-goal"
-            x1={0}
-            y1={goalY}
-            x2={100}
-            y2={goalY}
-            vectorEffect="non-scaling-stroke"
-          />
+          {goalY != null && (
+            <line
+              className="rb-weight-goal"
+              x1={0}
+              y1={goalY}
+              x2={100}
+              y2={goalY}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
           {projection && (
             <path className="rb-weight-projection" d={projection} vectorEffect="non-scaling-stroke" />
           )}
@@ -80,7 +81,6 @@ export default function WeightChart({ days, total, goal = 163 }: Props) {
             <path className="rb-weight-line" d={linePath} vectorEffect="non-scaling-stroke" />
           )}
         </svg>
-        {/* data points — HTML so they stay circular on stretch */}
         {points.map((p, i) => (
           <div
             key={i}
@@ -88,9 +88,11 @@ export default function WeightChart({ days, total, goal = 163 }: Props) {
             style={{ left: `${xPos(p.x)}%`, top: `${yPos(p.y)}%` }}
           />
         ))}
-        <div className="rb-weight-goal-label" style={{ top: `${goalY}%` }}>
-          goal · {goal}
-        </div>
+        {goalY != null && (
+          <div className="rb-weight-goal-label" style={{ top: `${goalY}%` }}>
+            {label ? `${label} · ${goal}` : `goal · ${goal}`}
+          </div>
+        )}
       </div>
     </div>
   );
