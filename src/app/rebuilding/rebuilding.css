@@ -566,7 +566,7 @@ body:has(.rb-wrap) {
 /* hide site-wide AsciiHeader / AsciiCursor / Footer on rebuilding routes */
 body:has(.rb-wrap) header.fixed,
 body:has(.rb-wrap) footer.fixed,
-body:has(.rb-wrap) > canvas[style*="position:fixed"] {
+body:has(.rb-wrap) canvas[style*="position:fixed"] {
   display: none !important;
 }
 
