@@ -49,17 +49,19 @@ export default function Dashboard({ run, schema, days }: Props) {
         </>
       )}
 
-      {schema.numberProps.map((p) => (
-        <div key={p.name}>
-          <div className="rb-section-head"><h2>{p.name}</h2></div>
-          <WeightChart
-            days={days}
-            total={TOTAL_DAYS}
-            propName={p.name}
-            goal={p.name === schema.weightProp ? weightGoal : undefined}
-          />
-        </div>
-      ))}
+      {schema.numberProps
+        .filter((p) => days.some((d) => typeof d.values[p.name] === "number"))
+        .map((p) => (
+          <div key={p.name}>
+            <div className="rb-section-head"><h2>{p.name}</h2></div>
+            <WeightChart
+              days={days}
+              total={TOTAL_DAYS}
+              propName={p.name}
+              goal={p.name === schema.weightProp ? weightGoal : undefined}
+            />
+          </div>
+        ))}
     </div>
   );
 }
