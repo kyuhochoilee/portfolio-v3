@@ -53,7 +53,9 @@ body:has(.rb-wrap) {
 
 .rb-dim-text { color: var(--rb-ink-dim); font-weight: 400; font-size: 11px; }
 
-/* floating bottom bar — kyu / zaza switcher */
+/* floating bottom bar — kyu / zaza switcher.
+   Rendered outside .rb-wrap, so it must NOT use --rb-* vars — they
+   aren't in scope here. Literal colors keep it theme-independent. */
 .rb-bottombar {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
@@ -64,10 +66,10 @@ body:has(.rb-wrap) {
   gap: 4px;
   padding: 5px;
   border-radius: 9999px;
-  background: color-mix(in srgb, #ffffff 78%, transparent);
+  background: color-mix(in srgb, #ffffff 82%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(1.5);
   backdrop-filter: blur(14px) saturate(1.5);
-  border: 1px solid var(--rb-rule);
+  border: 1px solid #e4e4e4;
   box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.22);
 }
 .rb-bb-item {
@@ -80,13 +82,13 @@ body:has(.rb-wrap) {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.13em;
-  color: var(--rb-ink-dimmer);
+  color: #8a8a8a;
   transition: background 140ms ease, color 140ms ease;
 }
-.rb-bb-item:hover { color: var(--rb-ink-dim); }
+.rb-bb-item:hover { color: #4a4a4a; }
 .rb-bb-active {
-  background: var(--rb-ink);
-  color: #fff;
+  background: #0a0a0a;
+  color: #ffffff;
 }
 .rb-bb-icon { width: 17px; height: 17px; flex-shrink: 0; }
 
