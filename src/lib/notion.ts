@@ -240,6 +240,25 @@ export async function getDay(run: RunKey, dayNum: number): Promise<Day | null> {
   return days.find((d) => d.day === dayNum) ?? null;
 }
 
+export interface RunData {
+  schema: Schema | null;
+  days: Day[];
+}
+
+/* Schema + days for every run — used to hydrate the client RebuildingApp. */
+export async function getRunsData(): Promise<Record<RunKey, RunData>> {
+  const [kyuSchema, kyuDays, zazaSchema, zazaDays] = await Promise.all([
+    getSchema("kyu"),
+    getAllDays("kyu"),
+    getSchema("zaza"),
+    getAllDays("zaza"),
+  ]);
+  return {
+    kyu: { schema: kyuSchema, days: kyuDays },
+    zaza: { schema: zazaSchema, days: zazaDays },
+  };
+}
+
 /* ───── block children (for page bodies) ───── */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

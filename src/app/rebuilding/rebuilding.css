@@ -31,6 +31,10 @@
 body:has(.rb-wrap) {
   background: var(--color-bg, #fafaf9);
 }
+/* the app shell owns the viewport — stop the document from scrolling too */
+body:has(.rb-stage) {
+  overflow: hidden;
+}
 
 .rb-wrap * { box-sizing: border-box; }
 
@@ -53,64 +57,91 @@ body:has(.rb-wrap) {
 
 .rb-dim-text { color: var(--rb-ink-dim); font-weight: 400; font-size: 11px; }
 
-/* swipe-to-switch-run wrapper: claim horizontal gestures, keep vertical scroll */
-.rb-swipe { touch-action: pan-y; }
+/* ───── app shell: horizontal scroll-snap of the two run dashboards ───── */
+.rb-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: var(--color-bg, #fafaf9);
+  transform-origin: top center;
+  will-change: transform;
+}
+.rb-runscroll {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  opacity: 0;
+}
+.rb-runscroll::-webkit-scrollbar { display: none; }
+.rb-runscroll[data-ready="true"] { opacity: 1; transition: opacity 0.25s ease; }
+.rb-runpanel {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.rb-runpanel::-webkit-scrollbar { display: none; }
 
-/* floating bottom bar — kyu / zaza switcher.
-   Rendered outside .rb-wrap, so it must NOT use --rb-* vars — they
-   aren't in scope here. Literal colors keep it theme-independent. */
-.rb-bottombar {
+/* ───── floating run switcher (kyu / zaza) ───── */
+.rb-switcher {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 50;
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin-inline: auto;
+  z-index: 60;
   display: flex;
   gap: 4px;
   padding: 5px;
   border-radius: 9999px;
-  /* solid bg — no backdrop-filter: it caches a stale snapshot on iOS
-     after navigation and only repaints on scroll */
   background: #ffffff;
   border: 1px solid #e4e4e4;
   box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.22);
-  /* lift out of the page crossfade so it stays solid during nav */
-  view-transition-name: rb-bottombar;
+  will-change: transform;
 }
-/* keep the bar perfectly static during nav — instant snap, no crossfade.
-   plus-lighter (the UA default blend for paired snapshots) is what
-   washed it out to gray; force normal blend + hide the old snapshot. */
-::view-transition-group(rb-bottombar) { animation: none; }
-::view-transition-image-pair(rb-bottombar) { isolation: auto; }
-::view-transition-old(rb-bottombar) {
-  animation: none;
-  opacity: 0;
-  mix-blend-mode: normal;
-}
-::view-transition-new(rb-bottombar) {
-  animation: none;
-  opacity: 1;
-  mix-blend-mode: normal;
-}
-.rb-bb-item {
+.rb-sw-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 7px;
   padding: 8px 16px;
+  border: 0;
   border-radius: 9999px;
-  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.13em;
   color: #8a8a8a;
-  transition: background 140ms ease, color 140ms ease;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 160ms ease;
 }
-.rb-bb-item:hover { color: #4a4a4a; }
-.rb-bb-active {
+.rb-sw-item > .rb-sw-icon,
+.rb-sw-item > .rb-sw-label { position: relative; z-index: 1; }
+.rb-sw-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 9999px;
   background: #0a0a0a;
-  color: #ffffff;
 }
-.rb-bb-icon { width: 17px; height: 17px; flex-shrink: 0; }
+.rb-sw-active { color: #ffffff; }
+.rb-sw-icon { width: 17px; height: 17px; flex-shrink: 0; }
+.rb-sw-label { line-height: 1; }
 
 .rb-section-head {
   display: flex;
@@ -196,7 +227,7 @@ body:has(.rb-wrap) {
   pointer-events: none;
 }
 
-/* photos — 5 cols mobile, 10 cols tablet+ */
+/* photos — 5 cols mobile, 10 cols tablet+. each tile is a button. */
 .rb-photos {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -205,16 +236,19 @@ body:has(.rb-wrap) {
 }
 .rb-photo {
   aspect-ratio: 1;
+  border: 0;
+  padding: 0;
   border-radius: 2px;
   background: var(--rb-cell-future);
   position: relative;
   overflow: hidden;
   display: block;
-  text-decoration: none;
+  cursor: pointer;
   color: inherit;
-  transition: transform 0.12s ease;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
 }
-.rb-photo:hover { transform: scale(1.06); z-index: 2; }
 .rb-photo-has { background: transparent; }
 .rb-photo-label {
   position: absolute;
@@ -281,13 +315,118 @@ body:has(.rb-wrap) {
 .rb-weight-line { fill: none; stroke: var(--rb-ink); stroke-width: 1.5; }
 .rb-weight-projection { fill: none; stroke: var(--rb-ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.25; }
 
-/* day page */
+/* ───── day sheet ───── */
+.rb-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  outline: none;
+}
+.rb-backdrop {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+}
+.rb-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(100dvh - 30px);
+  max-width: 620px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -10px 44px -6px rgba(0, 0, 0, 0.26);
+  overflow: hidden;
+  will-change: transform;
+  font-family: var(--font-mono, "Geist Mono", ui-monospace, monospace);
+  color: #0a0a0a;
+}
+.rb-sheet-head {
+  position: relative;
+  flex-shrink: 0;
+  padding: 9px 16px 12px;
+  border-bottom: 1px solid #ececec;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.rb-sheet-head:active { cursor: grabbing; }
+.rb-sheet-grab {
+  width: 36px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #d8d8d8;
+  margin: 0 auto 11px;
+}
+.rb-sheet-titles { display: flex; align-items: baseline; gap: 6px; }
+.rb-sheet-day {
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.rb-sheet-of {
+  font-size: 11px;
+  color: #a0a0a0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.rb-sheet-close {
+  position: absolute;
+  right: 10px;
+  bottom: 7px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: #a0a0a0;
+  font-size: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 140ms ease, color 140ms ease;
+}
+.rb-sheet-close:hover { background: #f2f2f2; color: #0a0a0a; }
+
+/* ───── day pager ───── */
+.rb-pager-viewport {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+.rb-pager-track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+.rb-page {
+  flex: 0 0 auto;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.rb-page::-webkit-scrollbar { display: none; }
+.rb-daycard-scroll {
+  padding: 28px 22px calc(48px + env(safe-area-inset-bottom, 0px));
+}
+
+/* day content */
 .rb-day-hero {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 12px 20px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 .rb-day-num {
   font-size: 56px;
@@ -296,15 +435,8 @@ body:has(.rb-wrap) {
   line-height: 1;
 }
 .rb-day-title { font-size: 13px; margin-bottom: 4px; }
-.rb-day-summary {
-  font-size: 11px;
-  color: var(--rb-ink-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
 
-.rb-day-body { display: grid; grid-template-columns: 1fr; gap: 32px; }
-.rb-props {}
+.rb-props { margin-bottom: 4px; }
 .rb-prop {
   padding: 10px 0;
   border-top: 1px solid var(--rb-rule);
@@ -321,23 +453,28 @@ body:has(.rb-wrap) {
 }
 .rb-prop-v { font-size: 12px; font-weight: 500; }
 .rb-dim { color: var(--rb-ink-dimmer); font-weight: 400; }
+.rb-day-right { margin-top: 28px; }
 
-.rb-day-photos {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  margin-bottom: 24px;
+/* loading skeleton */
+.rb-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding-top: 6px;
 }
-.rb-day-photo {
-  aspect-ratio: 4/5;
+.rb-skeleton-line {
+  height: 12px;
   border-radius: 4px;
-  overflow: hidden;
-  background: var(--rb-cell-future);
+  background: linear-gradient(90deg, #eeeeee 25%, #f7f7f7 50%, #eeeeee 75%);
+  background-size: 200% 100%;
+  animation: rb-shimmer 1.3s ease-in-out infinite;
 }
-.rb-day-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@keyframes rb-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 
 /* generic block renderer */
-.rb-blocks {}
 .rb-block { padding: 24px 0; border-top: 1px solid var(--rb-rule); }
 .rb-block:first-child { border-top: 0; padding-top: 0; }
 .rb-block-head {
@@ -352,7 +489,6 @@ body:has(.rb-wrap) {
   font-weight: 500;
   margin-bottom: 8px;
 }
-.rb-block-body {}
 .rb-block-p {
   margin: 0 0 8px;
   font-size: 13px;
@@ -471,33 +607,6 @@ body:has(.rb-wrap) {
   margin: 8px 0;
 }
 
-.rb-day-nav-top {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.rb-day-nav-top .rb-nav-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
-  padding: 6px 10px;
-  font-size: 14px;
-  letter-spacing: 0;
-  border-radius: 6px;
-}
-.rb-day-nav-top .rb-nav-link:hover { background: var(--rb-cell-future); color: var(--rb-ink); }
-.rb-nav-spacer { display: inline-block; width: 32px; }
-.rb-nav-link {
-  font-size: 11px;
-  color: var(--rb-ink-dim);
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-.rb-nav-link:hover { color: var(--rb-ink); }
-
 /* password gate */
 .rb-gate {
   position: fixed;
@@ -566,11 +675,11 @@ body:has(.rb-wrap) {
 /* hide site-wide AsciiHeader / AsciiCursor / Footer on rebuilding routes */
 body:has(.rb-wrap) header.fixed,
 body:has(.rb-wrap) footer.fixed,
-body:has(.rb-wrap) canvas[style*="position:fixed"] {
+body:has(.rb-wrap) canvas {
   display: none !important;
 }
 
-/* view transitions on link navigation — quick fade + subtle scale */
+/* view transitions on link navigation (→ rules page) — quick fade + subtle scale */
 @view-transition { navigation: auto; }
 
 ::view-transition-old(root) {
@@ -594,6 +703,13 @@ body:has(.rb-wrap) canvas[style*="position:fixed"] {
   ::view-transition-new(root) {
     animation: none;
   }
+  .rb-skeleton-line { animation: none; }
+  .rb-runscroll,
+  .rb-sw-item,
+  .rb-sheet-close,
+  .rb-brand-link {
+    transition: none !important;
+  }
 }
 
 /* tablet */
@@ -601,13 +717,12 @@ body:has(.rb-wrap) canvas[style*="position:fixed"] {
   .rb-wrap { margin: 32px auto calc(116px + env(safe-area-inset-bottom, 0px)); padding: 32px 32px 32px; --rb-cell-gap: 3px; }
   .rb-habits { grid-template-columns: repeat(3, 1fr); gap: 32px 24px; }
   .rb-photos { grid-template-columns: repeat(10, 1fr); gap: 6px; }
-  .rb-day-body { grid-template-columns: 220px 1fr; gap: 56px; }
   .rb-day-num { font-size: 72px; }
+  .rb-daycard-scroll { padding: 34px 32px calc(56px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* desktop */
 @media (min-width: 960px) {
   .rb-wrap { margin: 32px auto calc(116px + env(safe-area-inset-bottom, 0px)); padding: 36px 40px 36px; --rb-cell-gap: 3px; }
   .rb-habits { grid-template-columns: repeat(4, 1fr); gap: 36px 32px; }
-  .rb-day-body { grid-template-columns: 240px 1fr; gap: 72px; }
 }

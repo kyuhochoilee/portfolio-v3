@@ -1,14 +1,16 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 import type { Day } from "@/lib/notion";
 
 interface Props {
   days: Day[];
   total: number;
-  baseHref: string; // e.g. "/rebuilding" or "/rebuilding/zaza"
+  onOpenDay: (day: number) => void;
 }
 
-export default function PhotoGrid({ days, total, baseHref }: Props) {
+export default function PhotoGrid({ days, total, onOpenDay }: Props) {
   const dayMap = new Map<number, Day>();
   for (const d of days) dayMap.set(d.day, d);
 
@@ -20,10 +22,15 @@ export default function PhotoGrid({ days, total, baseHref }: Props) {
         const photo = day?.photos?.[0];
         const pad = String(dayNum).padStart(2, "0");
         return (
-          <Link
+          <motion.button
+            type="button"
             key={dayNum}
-            href={`${baseHref}/${pad}`}
             className={`rb-photo ${photo ? "rb-photo-has" : ""}`}
+            onClick={() => onOpenDay(dayNum)}
+            aria-label={`open day ${pad}`}
+            whileTap={{ scale: 0.94 }}
+            whileHover={{ scale: 1.05, zIndex: 2 }}
+            transition={{ type: "spring", stiffness: 600, damping: 30 }}
           >
             {photo && (
               <Image
@@ -35,7 +42,7 @@ export default function PhotoGrid({ days, total, baseHref }: Props) {
               />
             )}
             <span className="rb-photo-label">{pad}</span>
-          </Link>
+          </motion.button>
         );
       })}
     </div>

@@ -1,6 +1,6 @@
 import { isThoughtsUnlocked } from "@/lib/thoughtsAuth";
-import { getAllDays, getSchema } from "@/lib/notion";
-import Dashboard from "@/components/rebuilding/Dashboard";
+import { getRunsData } from "@/lib/notion";
+import RebuildingApp from "@/components/rebuilding/RebuildingApp";
 import PasswordGate from "@/components/rebuilding/PasswordGate";
 import "./rebuilding.css";
 
@@ -12,10 +12,10 @@ export const metadata = {
 };
 
 export default async function RebuildingPage() {
-  const unlocked = await isThoughtsUnlocked();
-  if (!unlocked) return <PasswordGate />;
+  if (!(await isThoughtsUnlocked())) return <PasswordGate />;
 
-  const [schema, days] = await Promise.all([getSchema("kyu"), getAllDays("kyu")]);
-  if (!schema) return <div className="rb-wrap">schema unavailable</div>;
-  return <Dashboard run="kyu" schema={schema} days={days} />;
+  const runs = await getRunsData();
+  if (!runs.kyu.schema) return <div className="rb-wrap">schema unavailable</div>;
+
+  return <RebuildingApp runs={runs} initialRun="kyu" />;
 }
